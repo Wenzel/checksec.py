@@ -8,6 +8,7 @@ from pathlib import Path
 from enum import Enum
 
 import lief
+from colorama import init, Fore, Style
 
 
 class RelroType(Enum):
@@ -59,7 +60,7 @@ class ELFSecurity:
         try:
             if self.bin.get(lief.ELF.DYNAMIC_TAGS.RPATH):
                 return True
-        except:
+        except lief.not_found:
             pass
         return False
 
@@ -68,7 +69,7 @@ class ELFSecurity:
         try:
             if self.bin.get(lief.ELF.DYNAMIC_TAGS.RUNPATH):
                 return True
-        except:
+        except lief.not_found:
             pass
         return False
 
@@ -104,10 +105,40 @@ def parse_args() -> Path:
 if __name__ == '__main__':
     filepath = parse_args()
     checksec = ELFSecurity(filepath)
-    print(f"relro: {checksec.has_relro.name}")
-    print(f"canary: {checksec.has_canary}")
-    print(f"NX: {checksec.has_nx}")
-    print(f"PIE: {checksec.is_pie}")
-    print(f"RPATH: {checksec.has_rpath}")
-    print(f"RUNPATH: {checksec.has_runpath}")
-    print(f"symbols: {not checksec.is_stripped}")
+    init()
+    # display results
+    relro = checksec.has_relro
+    if relro == RelroType.No:
+        print(f"RELRO: {Fore.RED}{checksec.has_relro.name}{Style.RESET_ALL}")
+    else:
+        print(f"RELRO: {Fore.GREEN}{checksec.has_relro.name}{Style.RESET_ALL}")
+
+    if not checksec.has_canary:
+        print(f"Canary: {Fore.RED}No{Style.RESET_ALL}")
+    else:
+        print(f"Canary: {Fore.GREEN}Yes{Style.RESET_ALL}")
+
+    if not checksec.has_nx:
+        print(f"NX: {Fore.RED}No{Style.RESET_ALL}")
+    else:
+        print(f"NX: {Fore.GREEN}Yes{Style.RESET_ALL}")
+
+    if not checksec.is_pie:
+        print(f"PIE: {Fore.RED}No{Style.RESET_ALL}")
+    else:
+        print(f"PIE: {Fore.GREEN}Yes{Style.RESET_ALL}")
+
+    if checksec.has_rpath:
+        print(f"RPATH: {Fore.RED}Yes{Style.RESET_ALL}")
+    else:
+        print(f"RPATH: {Fore.GREEN}No{Style.RESET_ALL}")
+
+    if checksec.has_rpath:
+        print(f"RUNPATH: {Fore.RED}Yes{Style.RESET_ALL}")
+    else:
+        print(f"RUNPATH: {Fore.GREEN}No{Style.RESET_ALL}")
+
+    if not checksec.is_stripped:
+        print(f"Symbols: {Fore.RED}Yes{Style.RESET_ALL}")
+    else:
+        print(f"Symbols: {Fore.GREEN}No{Style.RESET_ALL}")
