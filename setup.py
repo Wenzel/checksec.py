@@ -19,7 +19,7 @@ setuptools.setup(
     install_requires=requirements,
     entry_points={
         'console_scripts': [
-            'checksec = checksec.__main__:main'
+            'checksec.py = checksec.__main__:main'
         ],
     },
     classifiers=[
