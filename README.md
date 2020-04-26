@@ -2,15 +2,31 @@
 
 > Checksec tool in Python. Based on LIEF
 
+## Overview
+
+A simple tool to verify the security properties of your binaries.
+
+Supported formats:
+
+- [x] `ELF`
+- [ ] `PE`
+- [ ] `Mach-O`
+
 ## Requirements
 
-- `Python3.4`
+- `Python 3.4`
 - `virtualenv`
 
-## Usage
+## Setup
 
 ~~~
-usage: checksec.py [-h] file
+virtualenv -p python3 venv
+source venv/bin/activate
+(venv) pip install .
+~~~
+
+~~~
+usage: checksec [-h] file
 ~~~
 
 ## References
