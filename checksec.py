@@ -60,7 +60,7 @@ class ELFSecurity:
         try:
             if self.bin.get(lief.ELF.DYNAMIC_TAGS.RPATH):
                 return True
-        except:
+        except lief.not_found:
             pass
         return False
 
@@ -69,7 +69,7 @@ class ELFSecurity:
         try:
             if self.bin.get(lief.ELF.DYNAMIC_TAGS.RUNPATH):
                 return True
-        except:
+        except lief.not_found:
             pass
         return False
 
