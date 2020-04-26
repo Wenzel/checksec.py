@@ -1,9 +1,9 @@
-name: Lint
+name: Build
 
 on: [pull_request]
 
 jobs:
-  lint:
+  build:
 
     runs-on: ubuntu-latest
 
@@ -13,7 +13,5 @@ jobs:
       uses: actions/setup-python@v1
       with:
         python-version: '3.7'
-    - name: Lint with flake8
-      run: |
-        pip install flake8
-        flake8 --show-source --statistics --max-line-length=127 .
+    - name: Build package
+      run: pip install .
