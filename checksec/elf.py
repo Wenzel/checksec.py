@@ -14,6 +14,12 @@ class RelroType(Enum):
     Full = 3
 
 
+class PIEType(Enum):
+    No = 1
+    DSO = 2
+    PIE = 3
+
+
 class ELFSecurity:
 
     def __init__(self, elf_path: Path):
@@ -51,8 +57,13 @@ class ELFSecurity:
         return self.bin.has_nx
 
     @property
-    def is_pie(self) -> bool:
-        return self.bin.is_pie
+    def is_pie(self) -> PIEType:
+        if self.bin.is_pie:
+            if self.bin.has(lief.ELF.DYNAMIC_TAGS.DEBUG):
+                return PIEType.PIE
+            else:
+                return PIEType.DSO
+        return PIEType.No
 
     @property
     def has_rpath(self) -> bool:
