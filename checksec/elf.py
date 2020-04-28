@@ -5,6 +5,8 @@ from pathlib import Path
 
 import lief
 
+from .errors import ErrorNotAnElf, ErrorParsingFailed
+
 
 class RelroType(Enum):
     No = 1
@@ -17,8 +19,10 @@ class ELFSecurity:
     def __init__(self, elf_path: Path):
         # load with LIEF
         if not lief.is_elf(str(elf_path)):
-            raise RuntimeError(f"File {elf_path} is not an ELF")
+            raise ErrorNotAnElf(elf_path)
         self.bin = lief.parse(str(elf_path))
+        if not self.bin:
+            raise ErrorParsingFailed(elf_path)
 
     @property
     def has_relro(self) -> RelroType:
