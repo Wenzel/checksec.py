@@ -26,6 +26,7 @@ def main():
             print(f"File {filepath} does not exist")
             continue
         try:
+            print(f"### {filepath} ###")
             checksec = ELFSecurity(filepath)
         except (ErrorNotAnElf, ErrorParsingFailed):
             print(f"Failed to process {filepath}")
