@@ -6,6 +6,17 @@ from pathlib import Path
 import lief
 
 from .errors import ErrorNotAnElf, ErrorParsingFailed
+from .utils import find_library_full
+
+
+FORTIFIED_MARKER = '_chk'
+LIBC_OBJ = None
+
+
+def set_libc(libc_path: Path):
+    """Sets a new libc path to be used by future calls on ELFSecurity fortified functions"""
+    global LIBC_OBJ
+    LIBC_OBJ = Libc(libc_path)
 
 
 class RelroType(Enum):
@@ -18,6 +29,23 @@ class PIEType(Enum):
     No = 1
     DSO = 2
     PIE = 3
+
+
+class Libc:
+
+    def __init__(self, libpath: Path = None):
+        if libpath is None:
+            libpath = Path(find_library_full('c'))
+        if not lief.is_elf(str(libpath)):
+            raise ErrorNotAnElf(libpath)
+        self.libc = lief.parse(str(libpath))
+        if not self.libc:
+            raise ErrorParsingFailed(libpath)
+
+    @property
+    @lru_cache()
+    def fortified_symbols(self):
+        return [s.name for s in self.libc.dynamic_symbols if s.name.endswith(FORTIFIED_MARKER)]
 
 
 class ELFSecurity:
@@ -93,10 +121,31 @@ class ELFSecurity:
         return True if not self.symbols else False
 
     @property
-    @lru_cache()
-    def fortified_functions(self) -> List[str]:
-        return [func for func in self.bin.symbols if func.name.endswith('_chk')]
+    def is_fortified(self) -> bool:
+        return True if self.fortified else False
 
     @property
-    def is_fortified(self) -> bool:
-        return True if self.fortified_functions else False
+    @lru_cache()
+    def __get_libc(self):
+        global LIBC_OBJ
+        if LIBC_OBJ is None:
+            LIBC_OBJ = Libc()
+        return LIBC_OBJ
+
+    @property
+    @lru_cache()
+    def fortified(self) -> List[str]:
+        libc = self.__get_libc
+        return [f.name for f in self.bin.dynamic_symbols if f.name in libc.fortified_symbols]
+
+    @property
+    @lru_cache()
+    def fortifiable(self) -> List[str]:
+        return [f.name for f in self.bin.dynamic_symbols if self.__search_libc_fortifiable(f.name)]
+
+    def __search_libc_fortifiable(self, function) -> bool:
+        libc = self.__get_libc
+        for s in libc.fortified_symbols:
+            if s == f"__{function}{FORTIFIED_MARKER}":
+                return True
+        return False
