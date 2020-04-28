@@ -13,6 +13,12 @@ FORTIFIED_MARKER = '_chk'
 LIBC_OBJ = None
 
 
+def set_libc(libc_path: Path):
+    """Sets a new libc path to be used by future calls on ELFSecurity fortified functions"""
+    global LIBC_OBJ
+    LIBC_OBJ = Libc(libc_path)
+
+
 class RelroType(Enum):
     No = 1
     Partial = 2
