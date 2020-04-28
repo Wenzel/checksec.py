@@ -9,6 +9,10 @@ from .errors import ErrorNotAnElf, ErrorParsingFailed
 from .utils import find_library_full
 
 
+FORTIFIED_MARKER = '_chk'
+LIBC_OBJ = None
+
+
 class RelroType(Enum):
     No = 1
     Partial = 2
@@ -21,9 +25,24 @@ class PIEType(Enum):
     PIE = 3
 
 
-class ELFSecurity:
+class Libc:
 
-    FORTIFIED_MARKER = '_chk'
+    def __init__(self, libpath: Path = None):
+        if libpath is None:
+            libpath = Path(find_library_full('c'))
+        if not lief.is_elf(str(libpath)):
+            raise ErrorNotAnElf(libpath)
+        self.libc = lief.parse(str(libpath))
+        if not self.libc:
+            raise ErrorParsingFailed(libpath)
+
+    @property
+    @lru_cache()
+    def fortified_symbols(self):
+        return [s.name for s in self.libc.dynamic_symbols if s.name.endswith(FORTIFIED_MARKER)]
+
+
+class ELFSecurity:
 
     def __init__(self, elf_path: Path):
         # load with LIEF
@@ -101,16 +120,17 @@ class ELFSecurity:
 
     @property
     @lru_cache()
-    def libc_fortified_symbols(self):
-        # locate libc
-        libc_path = find_library_full('c')
-        libc = lief.parse(libc_path)
-        return [s.name for s in libc.dynamic_symbols if s.name.endswith(self.FORTIFIED_MARKER)]
+    def __get_libc(self):
+        global LIBC_OBJ
+        if LIBC_OBJ is None:
+            LIBC_OBJ = Libc()
+        return LIBC_OBJ
 
     @property
     @lru_cache()
     def fortified(self) -> List[str]:
-        return [f.name for f in self.bin.dynamic_symbols if f.name in self.libc_fortified_symbols]
+        libc = self.__get_libc
+        return [f.name for f in self.bin.dynamic_symbols if f.name in libc.fortified_symbols]
 
     @property
     @lru_cache()
@@ -118,7 +138,8 @@ class ELFSecurity:
         return [f.name for f in self.bin.dynamic_symbols if self.__search_libc_fortifiable(f.name)]
 
     def __search_libc_fortifiable(self, function) -> bool:
-        for s in self.libc_fortified_symbols:
-            if s == f"__{function}{self.FORTIFIED_MARKER}":
+        libc = self.__get_libc
+        for s in libc.fortified_symbols:
+            if s == f"__{function}{FORTIFIED_MARKER}":
                 return True
         return False
