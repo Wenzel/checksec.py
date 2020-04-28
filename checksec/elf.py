@@ -6,6 +6,7 @@ from pathlib import Path
 import lief
 
 from .errors import ErrorNotAnElf, ErrorParsingFailed
+from .utils import find_library_full
 
 
 class RelroType(Enum):
@@ -21,6 +22,8 @@ class PIEType(Enum):
 
 
 class ELFSecurity:
+
+    FORTIFIED_MARKER = '_chk'
 
     def __init__(self, elf_path: Path):
         # load with LIEF
@@ -93,10 +96,29 @@ class ELFSecurity:
         return True if not self.symbols else False
 
     @property
-    @lru_cache()
-    def fortified_functions(self) -> List[str]:
-        return [func for func in self.bin.symbols if func.name.endswith('_chk')]
+    def is_fortified(self) -> bool:
+        return True if self.fortified else False
 
     @property
-    def is_fortified(self) -> bool:
-        return True if self.fortified_functions else False
+    @lru_cache()
+    def libc_fortified_symbols(self):
+        # locate libc
+        libc_path = find_library_full('c')
+        libc = lief.parse(libc_path)
+        return [s.name for s in libc.dynamic_symbols if s.name.endswith(self.FORTIFIED_MARKER)]
+
+    @property
+    @lru_cache()
+    def fortified(self) -> List[str]:
+        return [f.name for f in self.bin.dynamic_symbols if f.name in self.libc_fortified_symbols]
+
+    @property
+    @lru_cache()
+    def fortifiable(self) -> List[str]:
+        return [f.name for f in self.bin.dynamic_symbols if self.__search_libc_fortifiable(f.name)]
+
+    def __search_libc_fortifiable(self, function) -> bool:
+        for s in self.libc_fortified_symbols:
+            if s == f"__{function}{self.FORTIFIED_MARKER}":
+                return True
+        return False
