@@ -71,6 +71,17 @@ def main():
     else:
         print(f"Fortifiable: {Fore.GREEN}{len(fortifiable_funcs)}{Style.RESET_ALL}")
 
+    score = 0
+    if checksec.is_fortified and len(fortifiable_funcs) == 0:
+        score = 100
+        print(f"Fortify Score: {Fore.GREEN}{score}%{Style.RESET_ALL}")
+    elif not checksec.is_fortified and len(fortifiable_funcs) == 0:
+        score = 0
+        print(f"Fortify Score: {Fore.RED}{score}%{Style.RESET_ALL}")
+    else:
+        score = round((len(checksec.fortified) * 100) / len(fortifiable_funcs))
+        print(f"Fortify Score: {Fore.YELLOW}{score}%{Style.RESET_ALL}")
+
 
 if __name__ == "__main__":
     main()
