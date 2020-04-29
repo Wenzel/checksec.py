@@ -89,8 +89,12 @@ def main():
             score = 0
             print(f"Fortify Score: {Fore.RED}{score}%{Style.RESET_ALL}")
         else:
-            score = round((len(checksec.fortified) * 100) / len(fortifiable_funcs))
-            print(f"Fortify Score: {Fore.YELLOW}{score}%{Style.RESET_ALL}")
+            score = (len(fortified_funcs) * 100) / (len(fortified_funcs) + len(fortifiable_funcs))
+            score = round(score)
+            color = Fore.YELLOW
+            if score == 100:
+                color = Fore.GREEN
+            print(f"Fortify Score: {color}{score}%{Style.RESET_ALL}")
 
 
 if __name__ == "__main__":
