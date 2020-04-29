@@ -113,6 +113,10 @@ def main(args):
             print(f"Fortify Score: {color}{score}%{Style.RESET_ALL}")
 
 
-if __name__ == "__main__":
+def entrypoint():
     args = docopt(__doc__)
     main(args)
+
+
+if __name__ == "__main__":
+    entrypoint()
