@@ -59,7 +59,7 @@ class ELFSecurity:
             raise ErrorParsingFailed(elf_path)
 
     @property
-    def has_relro(self) -> RelroType:
+    def relro(self) -> RelroType:
         try:
             self.bin.get(lief.ELF.SEGMENT_TYPES.GNU_RELRO)
             if lief.ELF.DYNAMIC_FLAGS.BIND_NOW in self.bin.get(lief.ELF.DYNAMIC_TAGS.FLAGS):
@@ -85,7 +85,7 @@ class ELFSecurity:
         return self.bin.has_nx
 
     @property
-    def is_pie(self) -> PIEType:
+    def pie(self) -> PIEType:
         if self.bin.is_pie:
             if self.bin.has(lief.ELF.DYNAMIC_TAGS.DEBUG):
                 return PIEType.PIE
@@ -103,7 +103,7 @@ class ELFSecurity:
         return False
 
     @property
-    def has_runpath(self):
+    def has_runpath(self) -> bool:
         try:
             if self.bin.get(lief.ELF.DYNAMIC_TAGS.RUNPATH):
                 return True
@@ -117,7 +117,7 @@ class ELFSecurity:
         return [symbol.name for symbol in self.bin.static_symbols]
 
     @property
-    def is_stripped(self):
+    def is_stripped(self) -> bool:
         return True if not self.symbols else False
 
     @property
@@ -126,7 +126,7 @@ class ELFSecurity:
 
     @property
     @lru_cache()
-    def __get_libc(self):
+    def __get_libc(self) -> Libc:
         global LIBC_OBJ
         if LIBC_OBJ is None:
             LIBC_OBJ = Libc()

@@ -6,7 +6,7 @@ from typing import List
 
 from colorama import init, Fore, Style
 
-from .elf import ELFSecurity, RelroType
+from .elf import ELFSecurity, RelroType, PIEType
 from .errors import ErrorNotAnElf, ErrorParsingFailed
 
 
@@ -33,11 +33,13 @@ def main():
             continue
 
         # display results
-        relro = checksec.has_relro
+        relro = checksec.relro
         if relro == RelroType.No:
-            print(f"RELRO: {Fore.RED}{checksec.has_relro.name}{Style.RESET_ALL}")
+            print(f"RELRO: {Fore.RED}{relro.name}{Style.RESET_ALL}")
+        elif relro == RelroType.Partial:
+            print(f"RELRO: {Fore.YELLOW}{relro.name}{Style.RESET_ALL}")
         else:
-            print(f"RELRO: {Fore.GREEN}{checksec.has_relro.name}{Style.RESET_ALL}")
+            print(f"RELRO: {Fore.GREEN}{relro.name}{Style.RESET_ALL}")
 
         if not checksec.has_canary:
             print(f"Canary: {Fore.RED}No{Style.RESET_ALL}")
@@ -49,8 +51,11 @@ def main():
         else:
             print(f"NX: {Fore.GREEN}Yes{Style.RESET_ALL}")
 
-        if not checksec.is_pie:
-            print(f"PIE: {Fore.RED}No{Style.RESET_ALL}")
+        pie = checksec.pie
+        if pie == PIEType.No:
+            print(f"PIE: {Fore.RED}{pie.name}{Style.RESET_ALL}")
+        elif pie == PIEType.DSO:
+            print(f"PIE: {Fore.YELLOW}{pie.name}{Style.RESET_ALL}")
         else:
             print(f"PIE: {Fore.GREEN}Yes{Style.RESET_ALL}")
 
@@ -81,7 +86,6 @@ def main():
         else:
             print(f"Fortifiable: {Fore.GREEN}{len(fortifiable_funcs)}{Style.RESET_ALL}")
 
-        score = 0
         if checksec.is_fortified and len(fortifiable_funcs) == 0:
             score = 100
             print(f"Fortify Score: {Fore.GREEN}{score}%{Style.RESET_ALL}")
