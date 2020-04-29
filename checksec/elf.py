@@ -19,6 +19,10 @@ def set_libc(libc_path: Path):
     LIBC_OBJ = Libc(libc_path)
 
 
+def is_elf(filepath: Path) -> bool:
+    return lief.is_elf(str(filepath))
+
+
 class RelroType(Enum):
     No = 1
     Partial = 2
@@ -51,9 +55,6 @@ class Libc:
 class ELFSecurity:
 
     def __init__(self, elf_path: Path):
-        # load with LIEF
-        if not lief.is_elf(str(elf_path)):
-            raise ErrorNotAnElf(elf_path)
         self.bin = lief.parse(str(elf_path))
         if not self.bin:
             raise ErrorParsingFailed(elf_path)

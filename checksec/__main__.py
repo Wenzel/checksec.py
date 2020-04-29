@@ -6,29 +6,31 @@ from typing import List
 
 from colorama import init, Fore, Style
 
-from .elf import ELFSecurity, RelroType, PIEType
-from .errors import ErrorNotAnElf, ErrorParsingFailed
+from .elf import ELFSecurity, RelroType, PIEType, is_elf
+from .errors import ErrorParsingFailed
 
 
 def parse_args() -> List[Path]:
     parser = argparse.ArgumentParser()
     parser.add_argument("file", nargs='+', help="file to be analyzed")
     args = parser.parse_args()
-    filepath_list = [Path(f) for f in args.file]
-    return filepath_list
+    yield from [Path(f) for f in args.file]
 
 
 def main():
     filepath_list = parse_args()
     init()
-    for filepath in filepath_list:
+    for index, filepath in enumerate(filepath_list):
         if not filepath.exists():
             print(f"File {filepath} does not exist")
+            continue
+        if not is_elf(filepath):
+            print(f"File {filepath} is not a valid ELF")
             continue
         try:
             print(f"### {filepath} ###")
             checksec = ELFSecurity(filepath)
-        except (ErrorNotAnElf, ErrorParsingFailed):
+        except ErrorParsingFailed:
             print(f"Failed to process {filepath}")
             continue
 
