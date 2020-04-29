@@ -1,26 +1,36 @@
 #!/usr/bin/env python3
 
-import argparse
-from pathlib import Path
-from typing import List
+"""
+Usage: capture.py [options] <file>...
 
+Options:
+    -h --help                       Display this message
+    -d --debug                      Enable debug output
+"""
+
+import os
+from typing import List
+from pathlib import Path
+
+from docopt import docopt
 from colorama import init, Fore, Style
 
 from .elf import ELFSecurity, RelroType, PIEType, is_elf
 from .errors import ErrorParsingFailed
 
 
-def parse_args() -> List[Path]:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("file", nargs='+', help="file to be analyzed")
-    args = parser.parse_args()
-    yield from [Path(f) for f in args.file]
+def walk_filepath_list(filepath_list: List[Path]):
+    for entry in filepath_list:
+        if entry.is_file():
+            yield entry
+        else:
+            yield from [Path(f) for f in os.scandir(entry)]
 
 
-def main():
-    filepath_list = parse_args()
+def main(args):
+    filepath_list = [Path(entry) for entry in args['<file>']]
     init()
-    for index, filepath in enumerate(filepath_list):
+    for index, filepath in enumerate(walk_filepath_list(filepath_list)):
         if not filepath.exists():
             print(f"File {filepath} does not exist")
             continue
@@ -104,4 +114,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    args = docopt(__doc__)
+    main(args)
