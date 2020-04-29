@@ -14,8 +14,7 @@ def parse_args() -> List[Path]:
     parser = argparse.ArgumentParser()
     parser.add_argument("file", nargs='+', help="file to be analyzed")
     args = parser.parse_args()
-    filepath_list = [Path(f) for f in args.file]
-    return filepath_list
+    yield from [Path(f) for f in args.file]
 
 
 def main():
