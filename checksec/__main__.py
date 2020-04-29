@@ -59,7 +59,7 @@ def main():
         else:
             print(f"RPATH: {Fore.GREEN}No{Style.RESET_ALL}")
 
-        if checksec.has_rpath:
+        if checksec.has_runpath:
             print(f"RUNPATH: {Fore.RED}Yes{Style.RESET_ALL}")
         else:
             print(f"RUNPATH: {Fore.GREEN}No{Style.RESET_ALL}")
