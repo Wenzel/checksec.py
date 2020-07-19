@@ -119,7 +119,7 @@ class ELFSecurity:
 
     @property
     def is_stripped(self) -> bool:
-        return True if not self.symbols else False
+        return True if len(self.bin.static_symbols) == 0 else False
 
     @property
     def is_fortified(self) -> bool:
