@@ -86,6 +86,7 @@ def main(args):
         else:
             print(f"Symbols: {Fore.GREEN}No{Style.RESET_ALL}")
 
+        continue
         fortified_funcs = checksec.fortified
         if not fortified_funcs:
             print(f"Fortified: {Fore.RED}No{Style.RESET_ALL}")
