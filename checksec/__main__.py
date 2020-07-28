@@ -130,19 +130,21 @@ def main(args):
             else:
                 fortifiable_res = f'[green]{len(fortifiable_funcs)}'
 
-            if checksec.is_fortified and len(fortifiable_funcs) == 0:
-                score = 100
-                fortified_score_res = f'[green]{score}'
-            elif not checksec.is_fortified and len(fortifiable_funcs) == 0:
+            if not checksec.is_fortified:
                 score = 0
                 fortified_score_res = f'[red]{score}'
             else:
-                score = (len(fortified_funcs) * 100) / (len(fortified_funcs) + len(fortifiable_funcs))
-                score = round(score)
-                color_str = 'yellow'
-                if score == 100:
-                    color_str = 'green'
-                fortified_score_res = f'[{color_str}]{score}'
+                # fortified
+                if len(fortified_funcs) == 0:
+                    # all fortified !
+                    fortified_score_res = f'[green]{score}'
+                else:
+                    score = (len(fortified_funcs) * 100) / (len(fortified_funcs) + len(fortifiable_funcs))
+                    score = round(score)
+                    color_str = 'yellow'
+                    if score == 100:
+                        color_str = 'green'
+                    fortified_score_res = f'[{color_str}]{score}'
 
             progress_bar.update(task_id, advance=1)
             table.add_row(str(filepath), relro_res, canary_res, nx_res, pie_res, rpath_res, runpath_res, symbols_res,
