@@ -1,13 +1,12 @@
 from enum import Enum
-from typing import List
 from functools import lru_cache
 from pathlib import Path
+from typing import List
 
 import lief
 
 from .errors import ErrorNotAnElf, ErrorParsingFailed
 from .utils import find_library_full
-
 
 FORTIFIED_MARKER = '_chk'
 LIBC_OBJ = None
