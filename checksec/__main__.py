@@ -4,9 +4,10 @@
 Usage: checksec.py [options] <file>...
 
 Options:
-    -h --help                       Display this message
-    -d --debug                      Enable debug output
+    -r --recursive                  Walk directories recursively
     -w WORKERS --workers=WORKERS    Specify the number of process pool workers [default: 4]
+    -d --debug                      Enable debug output
+    -h --help                       Display this message
 """
 
 import os
@@ -24,12 +25,16 @@ from .elf import ELFSecurity, PIEType, RelroType, is_elf
 from .errors import ErrorNotAnElf, ErrorParsingFailed
 
 
-def walk_filepath_list(filepath_list: List[Path]):
-    for entry in filepath_list:
-        if entry.is_file():
-            yield entry
-        else:
-            yield from [Path(f) for f in os.scandir(entry)]
+def walk_filepath_list(filepath_list: List[Path], recursive: bool = False):
+    for path in filepath_list:
+        if path.is_dir() and not path.is_symlink():
+            if recursive:
+                for f in os.scandir(path):
+                    yield from walk_filepath_list([Path(f)], recursive)
+            else:
+                yield from (Path(f) for f in os.scandir(path))
+        elif path.is_file():
+            yield path
 
 
 def checksec_file(filepath: Path):
@@ -126,6 +131,7 @@ def checksec_file(filepath: Path):
 def main(args):
     filepath_list = [Path(entry) for entry in args['<file>']]
     workers = int(args['--workers'])
+    recursive = args['--recursive']
 
     table = Table(title='Checksec Results', expand=True)
     table.add_column('File', justify='left', header_style='')
@@ -151,13 +157,13 @@ def main(args):
 
     # we need to consume the iterator once to get the total
     # for the progress bar
-    count = sum(1 for i in walk_filepath_list(filepath_list))
+    count = sum(1 for i in walk_filepath_list(filepath_list, recursive))
 
     with progress_bar:
         task_id = progress_bar.add_task("Checking", total=count)
         with ProcessPoolExecutor(max_workers=workers) as pool:
             future_to_checksec = {pool.submit(checksec_file, filepath): filepath
-                                  for filepath in walk_filepath_list(filepath_list)}
+                                  for filepath in walk_filepath_list(filepath_list, recursive)}
             for future in as_completed(future_to_checksec):
                 filepath = future_to_checksec[future]
                 try:
