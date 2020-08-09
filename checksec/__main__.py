@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-Usage: capture.py [options] <file>...
+Usage: checksec.py [options] <file>...
 
 Options:
     -h --help                       Display this message
