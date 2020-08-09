@@ -6,6 +6,7 @@ Usage: checksec.py [options] <file>...
 Options:
     -h --help                       Display this message
     -d --debug                      Enable debug output
+    -w WORKERS --workers=WORKERS    Specify the number of process pool workers [default: 4]
 """
 
 import os
@@ -124,6 +125,7 @@ def checksec_file(filepath: Path):
 
 def main(args):
     filepath_list = [Path(entry) for entry in args['<file>']]
+    workers = int(args['--workers'])
 
     table = Table(title='Checksec Results', expand=True)
     table.add_column('File', justify='left', header_style='')
@@ -154,7 +156,7 @@ def main(args):
 
     with progress_bar:
         task_id = progress_bar.add_task("Checking", total=count)
-        with ProcessPoolExecutor(max_workers=4) as pool:
+        with ProcessPoolExecutor(max_workers=workers) as pool:
             future_to_checksec = {pool.submit(checksec_file, filepath): filepath
                                   for filepath in walk_filepath_list(filepath_list)}
             for future in as_completed(future_to_checksec):
