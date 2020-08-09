@@ -17,7 +17,7 @@ from typing import List
 from docopt import docopt
 from rich import print
 from rich.console import Console
-from rich.progress import BarColumn, Progress, TextColumn, TimeRemainingColumn
+from rich.progress import BarColumn, Progress, TextColumn
 from rich.table import Table
 
 from .elf import ELFSecurity, PIEType, RelroType, is_elf
@@ -145,7 +145,6 @@ def main(args):
         TextColumn("[bold blue]Processing...", justify="left"),
         BarColumn(bar_width=None),
         "[progress.percentage]{task.percentage:>3.1f}%",
-        TimeRemainingColumn()
     )
 
     console = Console()
