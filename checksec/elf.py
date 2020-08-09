@@ -118,7 +118,14 @@ class ELFSecurity:
 
     @property
     def is_stripped(self) -> bool:
-        return True if len(self.bin.static_symbols) == 0 else False
+        # TODO: hwo to reset static_symbols iterator for the next call to symbols() ?
+        # consumes only the first symbol from iterator, saving CPU cycles
+        try:
+            next(self.bin.static_symbols)
+        except StopIteration:
+            return True
+        else:
+            return False
 
     @property
     def is_fortified(self) -> bool:
