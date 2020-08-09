@@ -9,6 +9,7 @@ Options:
 """
 
 import os
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
 from typing import List
 
@@ -19,7 +20,7 @@ from rich.progress import BarColumn, Progress, TextColumn, TimeRemainingColumn
 from rich.table import Table
 
 from .elf import ELFSecurity, PIEType, RelroType, is_elf
-from .errors import ErrorParsingFailed
+from .errors import ErrorNotAnElf, ErrorParsingFailed
 
 
 def walk_filepath_list(filepath_list: List[Path]):
@@ -28,6 +29,97 @@ def walk_filepath_list(filepath_list: List[Path]):
             yield entry
         else:
             yield from [Path(f) for f in os.scandir(entry)]
+
+
+def checksec_file(filepath: Path):
+    if not filepath.exists():
+        raise FileNotFoundError()
+    if not is_elf(filepath):
+        raise ErrorNotAnElf(filepath)
+    checksec = ELFSecurity(filepath)
+    # display results
+    relro = checksec.relro
+    if relro == RelroType.No:
+        relro_res = f'[red]{relro.name}'
+    elif relro == RelroType.Partial:
+        relro_res = f'[yellow]{relro.name}'
+    else:
+        relro_res = f'[green]{relro.name}'
+
+    if not checksec.has_canary:
+        canary_res = '[red]No'
+    else:
+        canary_res = '[green]Yes'
+
+    if not checksec.has_nx:
+        nx_res = '[red]No'
+    else:
+        nx_res = '[green]Yes'
+
+    pie = checksec.pie
+    if pie == PIEType.No:
+        pie_res = f'[red]{pie.name}'
+    elif pie == PIEType.DSO:
+        pie_res = f'[yellow]{pie.name}'
+    else:
+        pie_res = '[green]Yes'
+
+    if checksec.has_rpath:
+        rpath_res = '[red]Yes'
+    else:
+        rpath_res = '[green]No'
+
+    if checksec.has_runpath:
+        runpath_res = '[red]Yes'
+    else:
+        runpath_res = '[green]No'
+
+    if not checksec.is_stripped:
+        symbols_res = '[red]Yes'
+    else:
+        symbols_res = '[green]No'
+
+    fortified_funcs = checksec.fortified
+    if not fortified_funcs:
+        fortified_res = '[red]No'
+    else:
+        fortified_res = f'[green]{len(fortified_funcs)}'
+
+    fortifiable_funcs = checksec.fortifiable
+    if not fortifiable_funcs:
+        fortifiable_res = '[red]No'
+    else:
+        fortifiable_res = f'[green]{len(fortifiable_funcs)}'
+
+    if not checksec.is_fortified:
+        score = 0
+        fortified_score_res = f'[red]{score}'
+    else:
+        # fortified
+        if len(fortified_funcs) == 0:
+            # all fortified !
+            score = 100
+            fortified_score_res = f'[green]{score}'
+        else:
+            score = (len(fortified_funcs) * 100) / (len(fortified_funcs) + len(fortifiable_funcs))
+            score = round(score)
+            color_str = 'yellow'
+            if score == 100:
+                color_str = 'green'
+            fortified_score_res = f'[{color_str}]{score}'
+
+    return {
+        'relro': relro_res,
+        'canary': canary_res,
+        'nx': nx_res,
+        'pie': pie_res,
+        'rpath': rpath_res,
+        'runpath': runpath_res,
+        'symbols': symbols_res,
+        'fortified': fortified_res,
+        'fortifiable': fortifiable_res,
+        'fortified_score': fortified_score_res
+    }
 
 
 def main(args):
@@ -62,93 +154,25 @@ def main(args):
 
     with progress_bar:
         task_id = progress_bar.add_task("Checking", total=count)
-        for index, filepath in enumerate(walk_filepath_list(filepath_list)):
-            if not filepath.exists():
-                progress_bar.update(task_id, advance=1)
-                continue
-            if not is_elf(filepath):
-                progress_bar.update(task_id, advance=1)
-                continue
-            try:
-                checksec = ELFSecurity(filepath)
-            except ErrorParsingFailed:
-                print(f"Failed to process {filepath}")
-                progress_bar.update(task_id, advance=1)
-                continue
-
-            # display results
-            relro = checksec.relro
-            if relro == RelroType.No:
-                relro_res = f'[red]{relro.name}'
-            elif relro == RelroType.Partial:
-                relro_res = f'[yellow]{relro.name}'
-            else:
-                relro_res = f'[green]{relro.name}'
-
-            if not checksec.has_canary:
-                canary_res = '[red]No'
-            else:
-                canary_res = '[green]Yes'
-
-            if not checksec.has_nx:
-                nx_res = '[red]No'
-            else:
-                nx_res = '[green]Yes'
-
-            pie = checksec.pie
-            if pie == PIEType.No:
-                pie_res = f'[red]{pie.name}'
-            elif pie == PIEType.DSO:
-                pie_res = f'[yellow]{pie.name}'
-            else:
-                pie_res = '[green]Yes'
-
-            if checksec.has_rpath:
-                rpath_res = '[red]Yes'
-            else:
-                rpath_res = '[green]No'
-
-            if checksec.has_runpath:
-                runpath_res = '[red]Yes'
-            else:
-                runpath_res = '[green]No'
-
-            if not checksec.is_stripped:
-                symbols_res = '[red]Yes'
-            else:
-                symbols_res = '[green]No'
-
-            fortified_funcs = checksec.fortified
-            if not fortified_funcs:
-                fortified_res = '[red]No'
-            else:
-                fortified_res = f'[green]{len(fortified_funcs)}'
-
-            fortifiable_funcs = checksec.fortifiable
-            if not fortifiable_funcs:
-                fortifiable_res = '[red]No'
-            else:
-                fortifiable_res = f'[green]{len(fortifiable_funcs)}'
-
-            if not checksec.is_fortified:
-                score = 0
-                fortified_score_res = f'[red]{score}'
-            else:
-                # fortified
-                if len(fortified_funcs) == 0:
-                    # all fortified !
-                    fortified_score_res = f'[green]{score}'
+        with ProcessPoolExecutor(max_workers=4) as pool:
+            future_to_checksec = {pool.submit(checksec_file, filepath): filepath
+                                  for filepath in walk_filepath_list(filepath_list)}
+            for future in as_completed(future_to_checksec):
+                filepath = future_to_checksec[future]
+                try:
+                    data = future.result()
+                except FileNotFoundError:
+                    print(f"{filepath} does not exist")
+                except ErrorNotAnElf:
+                    print(f"{filepath} is not a valid ELF")
+                except ErrorParsingFailed:
+                    print(f"{filepath} ELF parsing failed")
                 else:
-                    score = (len(fortified_funcs) * 100) / (len(fortified_funcs) + len(fortifiable_funcs))
-                    score = round(score)
-                    color_str = 'yellow'
-                    if score == 100:
-                        color_str = 'green'
-                    fortified_score_res = f'[{color_str}]{score}'
-
-            progress_bar.update(task_id, advance=1)
-            table.add_row(str(filepath), relro_res, canary_res, nx_res, pie_res, rpath_res, runpath_res, symbols_res,
-                          fortified_res, fortifiable_res, fortified_score_res)
+                    table.add_row(str(filepath), data['relro'], data['canary'], data['nx'], data['pie'], data['rpath'],
+                                  data['runpath'], data['symbols'], data['fortified'], data['fortifiable'],
+                                  data['fortified_score'])
+                finally:
+                    progress_bar.update(task_id, advance=1)
 
     console.print(table)
 
