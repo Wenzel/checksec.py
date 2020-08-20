@@ -1,5 +1,7 @@
 # checksec.py
 
+![](https://github.com/Wenzel/checksec.py/workflows/build/badge.svg)
+
 > Checksec tool in Python. Based on LIEF
 
 ## Overview
