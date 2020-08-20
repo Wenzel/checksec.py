@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-Usage: checksec.py [options] <file>...
+Usage: checksec.py [options] <file/directory>...
 
 Options:
     -r --recursive                  Walk directories recursively
@@ -129,7 +129,7 @@ def checksec_file(filepath: Path):
 
 
 def main(args):
-    filepath_list = [Path(entry) for entry in args['<file>']]
+    filepath_list = [Path(entry) for entry in args['<file/directory>']]
     workers = int(args['--workers'])
     recursive = args['--recursive']
 
