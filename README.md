@@ -14,7 +14,7 @@ Supported formats:
 
 ## Requirements
 
-- `Python 3.4`
+- `Python 3.6`
 - `virtualenv`
 
 ## Setup
@@ -26,7 +26,7 @@ source venv/bin/activate
 ~~~
 
 ~~~
-usage: checksec [-h] file
+usage: checksec [-h] <file|dir>...
 ~~~
 
 ## References
