@@ -25,10 +25,6 @@ source venv/bin/activate
 (venv) pip install .
 ~~~
 
-~~~
-usage: checksec [-h] <file|dir>...
-~~~
-
 ## References
 
 - @apogiatzis [Gist checksec.py](https://gist.github.com/apogiatzis/fb617cd118a9882749b5cb167dae0c5d)
