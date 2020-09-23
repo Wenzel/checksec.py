@@ -1,0 +1,89 @@
+# Main CI
+
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Set up Python 3.6 🐍
+        uses: actions/setup-python@v1
+        with:
+          python-version: '3.6'
+
+      - name: Install Nox
+        run: python -m pip install nox==2020.8.22
+
+      - name: Formatting
+        run: nox -s fmt
+
+  lint:
+    needs: format
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Set up Python 3.6 🐍
+        uses: actions/setup-python@v1
+        with:
+          python-version: '3.6'
+
+      - name: Install Nox
+        run: python -m pip install nox==2020.8.22
+
+      - name: Lint
+        run: nox -s lint
+
+
+
+  build:
+    needs: lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Set up Python 3.6 🐍
+        uses: actions/setup-python@v1
+        with:
+          python-version: '3.6'
+
+      - name: Build 🔨
+        run: |
+          python -m pip install wheel
+          python setup.py sdist
+          python setup.py bdist_wheel
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Set up Python 3.6 🐍
+        uses: actions/setup-python@v1
+        with:
+          python-version: '3.6'
+
+      - name: Install Nox
+        run: python -m pip install nox==2020.8.22
+
+      - name: Run tests
+        run: nox -s test
+
+      - name: Install package 📦
+        run: python -m pip install .
+
+      - name: Run smoke test
+        run: checksec /usr/lib

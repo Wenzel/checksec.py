@@ -26,9 +26,5 @@ def type(session):
 @nox.session
 def test(session):
     session.install("-r", "requirements.txt")
-    session.install(
-        "pytest==6.0.2",
-        "coverage==5.3"
-    )
+    session.install("pytest==6.0.2", "coverage==5.3")
     session.run("coverage", "run", "-m", "pytest", "-v")
-
