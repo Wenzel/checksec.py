@@ -1,6 +1,6 @@
 import nox
 
-nox.options.sessions = ["lint", "fmt"]
+nox.options.sessions = ["fmt", "lint", "test"]
 
 
 @nox.session
@@ -21,6 +21,13 @@ def type(session):
     session.install("-r", "requirements.txt")
     session.install("mypy==0.782")
     session.run("mypy", ".")
+
+
+@nox.session
+def run(session):
+    args = session.posargs
+    session.install("-r", "requirements.txt")
+    session.run("python", "-m", "checksec", *args)
 
 
 @nox.session
