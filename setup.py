@@ -3,7 +3,7 @@ import setuptools
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-with open('requirements.txt') as f:
+with open("requirements.txt") as f:
     requirements = f.read().splitlines()
 
 setuptools.setup(
@@ -18,17 +18,13 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     install_requires=requirements,
     entry_points={
-        'console_scripts': [
-            'checksec = checksec.__main__:entrypoint'
-        ],
+        "console_scripts": ["checksec = checksec.__main__:entrypoint"],
     },
     classifiers=[
         "Programming Language :: Python :: 3.6",
-        "Environment :: Console"
-        "Operating System :: POSIX :: Linux",
         "Development Status :: 4 - Beta",
         "Typing :: Typed",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
     ],
-    python_requires='>=3.6',
+    python_requires=">=3.6",
 )

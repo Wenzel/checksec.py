@@ -2,7 +2,6 @@ from pathlib import Path
 
 
 class ErrorNotAnElf(Exception):
-
     def __init__(self, filepath: Path):
         self.path = filepath
 
@@ -11,7 +10,6 @@ class ErrorNotAnElf(Exception):
 
 
 class ErrorParsingFailed(Exception):
-
     def __init__(self, filepath: Path):
         self.path = filepath
 
