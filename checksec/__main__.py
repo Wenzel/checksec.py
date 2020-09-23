@@ -46,105 +46,105 @@ def checksec_file(filepath: Path):
     # display results
     relro = checksec.relro
     if relro == RelroType.No:
-        relro_res = f'[red]{relro.name}'
+        relro_res = f"[red]{relro.name}"
     elif relro == RelroType.Partial:
-        relro_res = f'[yellow]{relro.name}'
+        relro_res = f"[yellow]{relro.name}"
     else:
-        relro_res = f'[green]{relro.name}'
+        relro_res = f"[green]{relro.name}"
 
     if not checksec.has_canary:
-        canary_res = '[red]No'
+        canary_res = "[red]No"
     else:
-        canary_res = '[green]Yes'
+        canary_res = "[green]Yes"
 
     if not checksec.has_nx:
-        nx_res = '[red]No'
+        nx_res = "[red]No"
     else:
-        nx_res = '[green]Yes'
+        nx_res = "[green]Yes"
 
     pie = checksec.pie
     if pie == PIEType.No:
-        pie_res = f'[red]{pie.name}'
+        pie_res = f"[red]{pie.name}"
     elif pie == PIEType.DSO:
-        pie_res = f'[yellow]{pie.name}'
+        pie_res = f"[yellow]{pie.name}"
     else:
-        pie_res = '[green]Yes'
+        pie_res = "[green]Yes"
 
     if checksec.has_rpath:
-        rpath_res = '[red]Yes'
+        rpath_res = "[red]Yes"
     else:
-        rpath_res = '[green]No'
+        rpath_res = "[green]No"
 
     if checksec.has_runpath:
-        runpath_res = '[red]Yes'
+        runpath_res = "[red]Yes"
     else:
-        runpath_res = '[green]No'
+        runpath_res = "[green]No"
 
     if not checksec.is_stripped:
-        symbols_res = '[red]Yes'
+        symbols_res = "[red]Yes"
     else:
-        symbols_res = '[green]No'
+        symbols_res = "[green]No"
 
     fortified_funcs = checksec.fortified
     if not fortified_funcs:
-        fortified_res = '[red]No'
+        fortified_res = "[red]No"
     else:
-        fortified_res = f'[green]{len(fortified_funcs)}'
+        fortified_res = f"[green]{len(fortified_funcs)}"
 
     fortifiable_funcs = checksec.fortifiable
     if not fortifiable_funcs:
-        fortifiable_res = '[red]No'
+        fortifiable_res = "[red]No"
     else:
-        fortifiable_res = f'[green]{len(fortifiable_funcs)}'
+        fortifiable_res = f"[green]{len(fortifiable_funcs)}"
 
     if not checksec.is_fortified:
         score = 0
-        fortified_score_res = f'[red]{score}'
+        fortified_score_res = f"[red]{score}"
     else:
         # fortified
         if len(fortified_funcs) == 0:
             # all fortified !
             score = 100
-            fortified_score_res = f'[green]{score}'
+            fortified_score_res = f"[green]{score}"
         else:
             score = (len(fortified_funcs) * 100) / (len(fortified_funcs) + len(fortifiable_funcs))
             score = round(score)
-            color_str = 'yellow'
+            color_str = "yellow"
             if score == 100:
-                color_str = 'green'
-            fortified_score_res = f'[{color_str}]{score}'
+                color_str = "green"
+            fortified_score_res = f"[{color_str}]{score}"
 
     return {
-        'relro': relro_res,
-        'canary': canary_res,
-        'nx': nx_res,
-        'pie': pie_res,
-        'rpath': rpath_res,
-        'runpath': runpath_res,
-        'symbols': symbols_res,
-        'fortified': fortified_res,
-        'fortifiable': fortifiable_res,
-        'fortified_score': fortified_score_res
+        "relro": relro_res,
+        "canary": canary_res,
+        "nx": nx_res,
+        "pie": pie_res,
+        "rpath": rpath_res,
+        "runpath": runpath_res,
+        "symbols": symbols_res,
+        "fortified": fortified_res,
+        "fortifiable": fortifiable_res,
+        "fortified_score": fortified_score_res,
     }
 
 
 def main(args):
-    filepath_list = [Path(entry) for entry in args['<file/directory>']]
-    workers = int(args['--workers'])
-    recursive = args['--recursive']
+    filepath_list = [Path(entry) for entry in args["<file/directory>"]]
+    workers = int(args["--workers"])
+    recursive = args["--recursive"]
 
-    table = Table(title='Checksec Results', expand=True)
-    table.add_column('File', justify='left', header_style='')
-    table.add_column('Relro', justify='center')
-    table.add_column('Canary', justify='center')
-    table.add_column('NX', justify='center')
-    table.add_column('PIE', justify='center')
-    table.add_column('RPATH', justify='center')
-    table.add_column('RUNPATH', justify='center')
-    table.add_column('Symbols', justify='center')
-    table.add_column('Fortified', justify='center')
-    table.add_column('Fortifiable', justify='center')
-    table.add_column('Fortify Score', justify='center')
+    table = Table(title="Checksec Results", expand=True)
+    table.add_column("File", justify="left", header_style="")
+    table.add_column("Relro", justify="center")
+    table.add_column("Canary", justify="center")
+    table.add_column("NX", justify="center")
+    table.add_column("PIE", justify="center")
+    table.add_column("RPATH", justify="center")
+    table.add_column("RUNPATH", justify="center")
+    table.add_column("Symbols", justify="center")
+    table.add_column("Fortified", justify="center")
+    table.add_column("Fortifiable", justify="center")
+    table.add_column("Fortify Score", justify="center")
 
     # build progress bar
     progress_bar = Progress(
@@ -162,8 +162,10 @@ def main(args):
     with progress_bar:
         task_id = progress_bar.add_task("Checking", total=count)
         with ProcessPoolExecutor(max_workers=workers) as pool:
-            future_to_checksec = {pool.submit(checksec_file, filepath): filepath
-                                  for filepath in walk_filepath_list(filepath_list, recursive)}
+            future_to_checksec = {
+                pool.submit(checksec_file, filepath): filepath
+                for filepath in walk_filepath_list(filepath_list, recursive)
+            }
             for future in as_completed(future_to_checksec):
                 filepath = future_to_checksec[future]
                 try:
@@ -175,9 +177,19 @@ def main(args):
                 except ErrorParsingFailed:
                     print(f"{filepath} ELF parsing failed")
                 else:
-                    table.add_row(str(filepath), data['relro'], data['canary'], data['nx'], data['pie'], data['rpath'],
-                                  data['runpath'], data['symbols'], data['fortified'], data['fortifiable'],
-                                  data['fortified_score'])
+                    table.add_row(
+                        str(filepath),
+                        data["relro"],
+                        data["canary"],
+                        data["nx"],
+                        data["pie"],
+                        data["rpath"],
+                        data["runpath"],
+                        data["symbols"],
+                        data["fortified"],
+                        data["fortifiable"],
+                        data["fortified_score"],
+                    )
                 finally:
                     progress_bar.update(task_id, advance=1)
 

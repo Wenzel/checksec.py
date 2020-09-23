@@ -8,7 +8,7 @@ import lief
 from .errors import ErrorNotAnElf, ErrorParsingFailed
 from .utils import find_library_full
 
-FORTIFIED_MARKER = '_chk'
+FORTIFIED_MARKER = "_chk"
 LIBC_OBJ = None
 
 
@@ -35,10 +35,9 @@ class PIEType(Enum):
 
 
 class Libc:
-
     def __init__(self, libpath: Path = None):
         if libpath is None:
-            libpath = Path(find_library_full('c'))
+            libpath = Path(find_library_full("c"))
         if not lief.is_elf(str(libpath)):
             raise ErrorNotAnElf(libpath)
         self.libc = lief.parse(str(libpath))
@@ -52,7 +51,6 @@ class Libc:
 
 
 class ELFSecurity:
-
     def __init__(self, elf_path: Path):
         self.bin = lief.parse(str(elf_path))
         if not self.bin:
@@ -71,7 +69,7 @@ class ELFSecurity:
 
     @property
     def has_canary(self) -> bool:
-        canary_sections = ['__stack_chk_fail', '__intel_security_cookie']
+        canary_sections = ["__stack_chk_fail", "__intel_security_cookie"]
         for section in canary_sections:
             try:
                 if self.bin.get_symbol(section):
