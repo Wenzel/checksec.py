@@ -130,6 +130,7 @@ def checksec_file(filepath: Path):
 
 def main(args):
     filepath_list = [Path(entry) for entry in args["<file/directory>"]]
+    debug = args["--debug"]
     workers = int(args["--workers"])
     recursive = args["--recursive"]
 
@@ -171,11 +172,14 @@ def main(args):
                 try:
                     data = future.result()
                 except FileNotFoundError:
-                    print(f"{filepath} does not exist")
+                    if debug:
+                        print(f"{filepath} does not exist")
                 except ErrorNotAnElf:
-                    print(f"{filepath} is not a valid ELF")
+                    if debug:
+                        print(f"{filepath} is not a valid ELF")
                 except ErrorParsingFailed:
-                    print(f"{filepath} ELF parsing failed")
+                    if debug:
+                        print(f"{filepath} ELF parsing failed")
                 else:
                     table.add_row(
                         str(filepath),
