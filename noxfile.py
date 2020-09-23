@@ -21,3 +21,14 @@ def type(session):
     session.install("-r", "requirements.txt")
     session.install("mypy==0.782")
     session.run("mypy", ".")
+
+
+@nox.session
+def test(session):
+    session.install("-r", "requirements.txt")
+    session.install(
+        "pytest==6.0.2",
+        "coverage==5.3"
+    )
+    session.run("coverage", "run", "-m", "pytest", "-v")
+
