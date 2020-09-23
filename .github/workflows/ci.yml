@@ -92,6 +92,8 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
 
+    # push on master and tag is 'v*'
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     steps:
       - uses: actions/checkout@v1
 
@@ -107,9 +109,7 @@ jobs:
           python setup.py bdist_wheel
 
       - name: Publish on PyPI 🚀
-        # push on master and tag is 'v*'
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
         uses: pypa/gh-action-pypi-publish@v1.3.1
         with:
           user: __token__
-          password: ${{ secrets.API_TOKEN }}
+          password: ${{ secrets.ACCESS_TOKEN }}
