@@ -9,7 +9,8 @@ import lief
 from .errors import ErrorNotAnElf, ErrorParsingFailed
 from .utils import find_library_full
 
-FORTIFIED_MARKER = "_chk"
+FORTIFIED_END_MARKER = "_chk"
+FORTFIED_START_MARKER = "__"
 LIBC_OBJ = None
 ELFChecksecData = namedtuple(
     "ELFChecksecData",
@@ -64,7 +65,14 @@ class Libc:
     @property
     @lru_cache()
     def fortified_symbols(self):
-        return [s.name for s in self.libc.dynamic_symbols if s.name.endswith(FORTIFIED_MARKER)]
+        """Get the list of libc symbols who have been fortified"""
+        return [s.name for s in self.libc.symbols if s.name.endswith(FORTIFIED_END_MARKER)]
+
+    @property
+    @lru_cache()
+    def fortified_symbols_base(self):
+        """Get the list of fortified libc symbols, keeping only the function basename"""
+        return [sym[len(FORTFIED_START_MARKER) : -len(FORTIFIED_END_MARKER)] for sym in self.fortified_symbols]
 
 
 class ELFSecurity:
@@ -157,17 +165,15 @@ class ELFSecurity:
     @property
     @lru_cache()
     def fortified(self) -> List[str]:
+        """Get the list of fortified symbols"""
         libc = self.__get_libc
         return [f.name for f in self.bin.dynamic_symbols if f.name in libc.fortified_symbols]
 
     @property
     @lru_cache()
     def fortifiable(self) -> List[str]:
-        return [f.name for f in self.bin.dynamic_symbols if self.__search_libc_fortifiable(f.name)]
-
-    def __search_libc_fortifiable(self, function) -> bool:
+        """Get the list of fortifiable symbols (fortified + unfortified)"""
         libc = self.__get_libc
-        for s in libc.fortified_symbols:
-            if s == f"__{function}{FORTIFIED_MARKER}":
-                return True
-        return False
+        res = [f.name for f in self.bin.dynamic_symbols if f.name in libc.fortified_symbols_base]
+        res.extend(self.fortified)
+        return res
