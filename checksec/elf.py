@@ -24,7 +24,7 @@ ELFChecksecData = namedtuple(
         "fortify_source",
         "fortified",
         "fortifiable",
-        "fortified_score",
+        "fortify_score",
     ],
 )
 

@@ -131,12 +131,12 @@ class RichOutput(AbstractChecksecOutput):
         else:
             fortifiable_res = f"[green]{fortifiable_count}"
 
-        if checksec.fortified_score == 0:
-            fortified_score_res = f"[red]{checksec.fortified_score}"
-        elif checksec.fortified_score == 100:
-            fortified_score_res = f"[green]{checksec.fortified_score}"
+        if checksec.fortify_score == 0:
+            fortified_score_res = f"[red]{checksec.fortify_score}"
+        elif checksec.fortify_score == 100:
+            fortified_score_res = f"[green]{checksec.fortify_score}"
         else:
-            fortified_score_res = f"[yellow]{checksec.fortified_score}"
+            fortified_score_res = f"[yellow]{checksec.fortify_score}"
 
         self.table.add_row(
             str(filepath),
@@ -179,7 +179,7 @@ class JSONOutput(AbstractChecksecOutput):
             "fortify_source": checksec.fortify_source,
             "fortified": checksec.fortified,
             "fortify-able": checksec.fortifiable,
-            "fortified_score": checksec.fortified_score,
+            "fortify_score": checksec.fortify_score,
         }
 
     def checksec_result_end(self):
