@@ -1,3 +1,4 @@
+from collections import namedtuple
 from enum import Enum
 from functools import lru_cache
 from pathlib import Path
@@ -10,6 +11,10 @@ from .utils import find_library_full
 
 FORTIFIED_MARKER = "_chk"
 LIBC_OBJ = None
+ELFChecksecData = namedtuple(
+    "ELFChecksecData",
+    ["relro", "canary", "nx", "pie", "rpath", "runpath", "symbols", "fortified", "fortifiable", "fortified_score"],
+)
 
 
 def set_libc(libc_path: Path):
