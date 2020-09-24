@@ -17,12 +17,10 @@ from typing import List
 
 from docopt import docopt
 from rich import print
-from rich.console import Console
-from rich.progress import BarColumn, Progress, TextColumn
-from rich.table import Table
 
 from .elf import ELFSecurity, PIEType, RelroType, is_elf
 from .errors import ErrorNotAnElf, ErrorParsingFailed
+from .output import RichOutput
 
 
 def walk_filepath_list(filepath_list: List[Path], recursive: bool = False):
@@ -134,34 +132,13 @@ def main(args):
     workers = int(args["--workers"])
     recursive = args["--recursive"]
 
-    table = Table(title="Checksec Results", expand=True)
-    table.add_column("File", justify="left", header_style="")
-    table.add_column("Relro", justify="center")
-    table.add_column("Canary", justify="center")
-    table.add_column("NX", justify="center")
-    table.add_column("PIE", justify="center")
-    table.add_column("RPATH", justify="center")
-    table.add_column("RUNPATH", justify="center")
-    table.add_column("Symbols", justify="center")
-    table.add_column("Fortified", justify="center")
-    table.add_column("Fortifiable", justify="center")
-    table.add_column("Fortify Score", justify="center")
-
-    # build progress bar
-    progress_bar = Progress(
-        TextColumn("[bold blue]Processing...", justify="left"),
-        BarColumn(bar_width=None),
-        "[progress.percentage]{task.percentage:>3.1f}%",
-    )
-
-    console = Console()
-
     # we need to consume the iterator once to get the total
     # for the progress bar
     count = sum(1 for i in walk_filepath_list(filepath_list, recursive))
 
-    with progress_bar:
-        task_id = progress_bar.add_task("Checking", total=count)
+    output_cls = RichOutput
+
+    with output_cls(count) as check_output:
         with ProcessPoolExecutor(max_workers=workers) as pool:
             future_to_checksec = {
                 pool.submit(checksec_file, filepath): filepath
@@ -181,23 +158,11 @@ def main(args):
                     if debug:
                         print(f"{filepath} ELF parsing failed")
                 else:
-                    table.add_row(
-                        str(filepath),
-                        data["relro"],
-                        data["canary"],
-                        data["nx"],
-                        data["pie"],
-                        data["rpath"],
-                        data["runpath"],
-                        data["symbols"],
-                        data["fortified"],
-                        data["fortifiable"],
-                        data["fortified_score"],
-                    )
+                    check_output.add_checksec_result(filepath, data)
                 finally:
-                    progress_bar.update(task_id, advance=1)
+                    check_output.checksec_result_end()
 
-    console.print(table)
+        check_output.print()
 
 
 def entrypoint():
