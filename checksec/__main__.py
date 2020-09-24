@@ -6,6 +6,7 @@ Usage: checksec.py [options] <file/directory>...
 Options:
     -r --recursive                  Walk directories recursively
     -w WORKERS --workers=WORKERS    Specify the number of process pool workers [default: 4]
+    -j --json                       Display results as JSON
     -d --debug                      Enable debug output
     -h --help                       Display this message
 """
@@ -18,9 +19,9 @@ from typing import List
 from docopt import docopt
 from rich import print
 
-from .elf import ELFSecurity, PIEType, RelroType, is_elf
+from .elf import ELFChecksecData, ELFSecurity, is_elf
 from .errors import ErrorNotAnElf, ErrorParsingFailed
-from .output import RichOutput
+from .output import JSONOutput, RichOutput
 
 
 def walk_filepath_list(filepath_list: List[Path], recursive: bool = False):
@@ -35,108 +36,56 @@ def walk_filepath_list(filepath_list: List[Path], recursive: bool = False):
             yield path
 
 
-def checksec_file(filepath: Path):
+def checksec_file(filepath: Path) -> ELFChecksecData:
     if not filepath.exists():
         raise FileNotFoundError()
     if not is_elf(filepath):
         raise ErrorNotAnElf(filepath)
     checksec = ELFSecurity(filepath)
-    # display results
-    relro = checksec.relro
-    if relro == RelroType.No:
-        relro_res = f"[red]{relro.name}"
-    elif relro == RelroType.Partial:
-        relro_res = f"[yellow]{relro.name}"
-    else:
-        relro_res = f"[green]{relro.name}"
 
-    if not checksec.has_canary:
-        canary_res = "[red]No"
-    else:
-        canary_res = "[green]Yes"
-
-    if not checksec.has_nx:
-        nx_res = "[red]No"
-    else:
-        nx_res = "[green]Yes"
-
-    pie = checksec.pie
-    if pie == PIEType.No:
-        pie_res = f"[red]{pie.name}"
-    elif pie == PIEType.DSO:
-        pie_res = f"[yellow]{pie.name}"
-    else:
-        pie_res = "[green]Yes"
-
-    if checksec.has_rpath:
-        rpath_res = "[red]Yes"
-    else:
-        rpath_res = "[green]No"
-
-    if checksec.has_runpath:
-        runpath_res = "[red]Yes"
-    else:
-        runpath_res = "[green]No"
-
-    if not checksec.is_stripped:
-        symbols_res = "[red]Yes"
-    else:
-        symbols_res = "[green]No"
-
-    fortified_funcs = checksec.fortified
-    if not fortified_funcs:
-        fortified_res = "[red]No"
-    else:
-        fortified_res = f"[green]{len(fortified_funcs)}"
-
-    fortifiable_funcs = checksec.fortifiable
-    if not fortifiable_funcs:
-        fortifiable_res = "[red]No"
-    else:
-        fortifiable_res = f"[green]{len(fortifiable_funcs)}"
-
+    fortified_count = len(checksec.fortified)
+    fortifiable_count = len(checksec.fortifiable)
     if not checksec.is_fortified:
         score = 0
-        fortified_score_res = f"[red]{score}"
     else:
         # fortified
-        if len(fortified_funcs) == 0:
+        if fortified_count == 0:
             # all fortified !
             score = 100
-            fortified_score_res = f"[green]{score}"
         else:
-            score = (len(fortified_funcs) * 100) / (len(fortified_funcs) + len(fortifiable_funcs))
+            score = (fortified_count * 100) / (fortified_count + fortifiable_count)
             score = round(score)
-            color_str = "yellow"
-            if score == 100:
-                color_str = "green"
-            fortified_score_res = f"[{color_str}]{score}"
 
-    return {
-        "relro": relro_res,
-        "canary": canary_res,
-        "nx": nx_res,
-        "pie": pie_res,
-        "rpath": rpath_res,
-        "runpath": runpath_res,
-        "symbols": symbols_res,
-        "fortified": fortified_res,
-        "fortifiable": fortifiable_res,
-        "fortified_score": fortified_score_res,
-    }
+    checksec_data = ELFChecksecData(
+        checksec.relro,
+        checksec.has_canary,
+        checksec.has_nx,
+        checksec.pie,
+        checksec.has_rpath,
+        checksec.has_runpath,
+        not checksec.is_stripped,
+        fortified_count,
+        fortifiable_count,
+        score,
+    )
+    return checksec_data
 
 
 def main(args):
     filepath_list = [Path(entry) for entry in args["<file/directory>"]]
     debug = args["--debug"]
     workers = int(args["--workers"])
+    json = args["--json"]
     recursive = args["--recursive"]
 
     # we need to consume the iterator once to get the total
     # for the progress bar
     count = sum(1 for i in walk_filepath_list(filepath_list, recursive))
 
+    # default output: Rich console
     output_cls = RichOutput
+    if json:
+        output_cls = JSONOutput
 
     with output_cls(count) as check_output:
         with ProcessPoolExecutor(max_workers=workers) as pool:
