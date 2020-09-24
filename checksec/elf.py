@@ -13,7 +13,19 @@ FORTIFIED_MARKER = "_chk"
 LIBC_OBJ = None
 ELFChecksecData = namedtuple(
     "ELFChecksecData",
-    ["relro", "canary", "nx", "pie", "rpath", "runpath", "symbols", "fortified", "fortifiable", "fortified_score"],
+    [
+        "relro",
+        "canary",
+        "nx",
+        "pie",
+        "rpath",
+        "runpath",
+        "symbols",
+        "fortify_source",
+        "fortified",
+        "fortifiable",
+        "fortify_score",
+    ],
 )
 
 

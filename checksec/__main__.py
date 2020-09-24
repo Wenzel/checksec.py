@@ -56,6 +56,7 @@ def checksec_file(filepath: Path) -> ELFChecksecData:
             score = (fortified_count * 100) / (fortified_count + fortifiable_count)
             score = round(score)
 
+    fortify_source = True if fortified_count != 0 else False
     checksec_data = ELFChecksecData(
         checksec.relro,
         checksec.has_canary,
@@ -64,6 +65,7 @@ def checksec_file(filepath: Path) -> ELFChecksecData:
         checksec.has_rpath,
         checksec.has_runpath,
         not checksec.is_stripped,
+        fortify_source,
         fortified_count,
         fortifiable_count,
         score,

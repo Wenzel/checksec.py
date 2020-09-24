@@ -53,6 +53,7 @@ class RichOutput(AbstractChecksecOutput):
         self.table.add_column("RPATH", justify="center")
         self.table.add_column("RUNPATH", justify="center")
         self.table.add_column("Symbols", justify="center")
+        self.table.add_column("FORTIFY", justify="center")
         self.table.add_column("Fortified", justify="center")
         self.table.add_column("Fortifiable", justify="center")
         self.table.add_column("Fortify Score", justify="center")
@@ -114,6 +115,11 @@ class RichOutput(AbstractChecksecOutput):
             symbols_res = "[green]No"
 
         fortified_count = checksec.fortified
+        if checksec.fortify_source:
+            fortify_source_res = "[green]Yes"
+        else:
+            fortify_source_res = "[red]No"
+
         if fortified_count == 0:
             fortified_res = "[red]No"
         else:
@@ -125,12 +131,12 @@ class RichOutput(AbstractChecksecOutput):
         else:
             fortifiable_res = f"[green]{fortifiable_count}"
 
-        if checksec.fortified_score == 0:
-            fortified_score_res = f"[red]{checksec.fortified_score}"
-        elif checksec.fortified_score == 100:
-            fortified_score_res = f"[green]{checksec.fortified_score}"
+        if checksec.fortify_score == 0:
+            fortified_score_res = f"[red]{checksec.fortify_score}"
+        elif checksec.fortify_score == 100:
+            fortified_score_res = f"[green]{checksec.fortify_score}"
         else:
-            fortified_score_res = f"[yellow]{checksec.fortified_score}"
+            fortified_score_res = f"[yellow]{checksec.fortify_score}"
 
         self.table.add_row(
             str(filepath),
@@ -141,6 +147,7 @@ class RichOutput(AbstractChecksecOutput):
             rpath_res,
             runpath_res,
             symbols_res,
+            fortify_source_res,
             fortified_res,
             fortifiable_res,
             fortified_score_res,
@@ -169,9 +176,10 @@ class JSONOutput(AbstractChecksecOutput):
             "rpath": checksec.rpath,
             "runpath": checksec.runpath,
             "symbols": checksec.symbols,
+            "fortify_source": checksec.fortify_source,
             "fortified": checksec.fortified,
             "fortify-able": checksec.fortifiable,
-            "fortified_score": checksec.fortified_score,
+            "fortify_score": checksec.fortify_score,
         }
 
     def checksec_result_end(self):
