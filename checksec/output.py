@@ -200,19 +200,28 @@ class JSONOutput(AbstractChecksecOutput):
         self.data = {}
 
     def add_checksec_result(self, filepath: Path, checksec: Union[ELFChecksecData, PEChecksecData]):
-        self.data[str(filepath)] = {
-            "relro": checksec.relro.name,
-            "canary": checksec.canary,
-            "nx": checksec.nx,
-            "pie": checksec.pie.name,
-            "rpath": checksec.rpath,
-            "runpath": checksec.runpath,
-            "symbols": checksec.symbols,
-            "fortify_source": checksec.fortify_source,
-            "fortified": checksec.fortified,
-            "fortify-able": checksec.fortifiable,
-            "fortify_score": checksec.fortify_score,
-        }
+        if isinstance(checksec, ELFChecksecData):
+            self.data[str(filepath)] = {
+                "relro": checksec.relro.name,
+                "canary": checksec.canary,
+                "nx": checksec.nx,
+                "pie": checksec.pie.name,
+                "rpath": checksec.rpath,
+                "runpath": checksec.runpath,
+                "symbols": checksec.symbols,
+                "fortify_source": checksec.fortify_source,
+                "fortified": checksec.fortified,
+                "fortify-able": checksec.fortifiable,
+                "fortify_score": checksec.fortify_score,
+            }
+        elif isinstance(checksec, PEChecksecData):
+            self.data[str(filepath)] = {
+                "nx": checksec.nx,
+                "pie": checksec.pie,
+                "canary": checksec.canary
+            }
+        else:
+            raise NotImplementedError
 
     def checksec_result_end(self):
         pass
