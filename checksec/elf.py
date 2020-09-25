@@ -6,6 +6,7 @@ from typing import List
 
 import lief
 
+from .binary import BinarySecurity
 from .errors import ErrorNotAnElf, ErrorParsingFailed
 from .utils import find_library_full
 
@@ -75,11 +76,9 @@ class Libc:
         return [sym[len(FORTFIED_START_MARKER) : -len(FORTIFIED_END_MARKER)] for sym in self.fortified_symbols]
 
 
-class ELFSecurity:
+class ELFSecurity(BinarySecurity):
     def __init__(self, elf_path: Path):
-        self.bin = lief.parse(str(elf_path))
-        if not self.bin:
-            raise ErrorParsingFailed(elf_path)
+        super().__init__(elf_path)
 
     @property
     def relro(self) -> RelroType:
@@ -102,10 +101,6 @@ class ELFSecurity:
             except lief.not_found:
                 pass
         return False
-
-    @property
-    def has_nx(self) -> bool:
-        return self.bin.has_nx
 
     @property
     def pie(self) -> PIEType:
@@ -177,3 +172,33 @@ class ELFSecurity:
         res = [f.name for f in self.bin.dynamic_symbols if f.name in libc.fortified_symbols_base]
         res.extend(self.fortified)
         return res
+
+    @property
+    def checksec_state(self) -> ELFChecksecData:
+        fortified_count = len(self.fortified)
+        fortifiable_count = len(self.fortifiable)
+        if not self.is_fortified:
+            score = 0
+        else:
+            # fortified
+            if fortified_count == 0:
+                # all fortified !
+                score = 100
+            else:
+                score = (fortified_count * 100) / (fortified_count + fortifiable_count)
+                score = round(score)
+
+        fortify_source = True if fortified_count != 0 else False
+        return ELFChecksecData(
+            self.relro,
+            self.has_canary,
+            self.has_nx,
+            self.pie,
+            self.has_rpath,
+            self.has_runpath,
+            not self.is_stripped,
+            fortify_source,
+            fortified_count,
+            fortifiable_count,
+            score,
+        )
