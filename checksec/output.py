@@ -263,6 +263,7 @@ class JSONOutput(AbstractChecksecOutput):
                 "nx": checksec.nx,
                 "pie": checksec.pie,
                 "canary": checksec.canary,
+                "aslr": checksec.aslr,
                 "dynamic_base": checksec.dynamic_base,
                 "high_entropy_va": checksec.high_entropy_va,
                 "guard_cf": checksec.guard_cf,
