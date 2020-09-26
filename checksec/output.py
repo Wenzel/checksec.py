@@ -67,6 +67,7 @@ class RichOutput(AbstractChecksecOutput):
         self.table_pe.add_column("PIE", justify="center")
         self.table_pe.add_column("Canary", justify="center")
         self.table_pe.add_column("Dynamic Base", justify="center")
+        self.table_pe.add_column("High Entropy VA", justify="center")
 
         # build progress bar
         self.progress_bar = Progress(
@@ -184,7 +185,12 @@ class RichOutput(AbstractChecksecOutput):
             else:
                 dynamic_base_res = "[green]Yes"
 
-            self.table_pe.add_row(str(filepath), nx_res, pie_res, canary_res, dynamic_base_res)
+            if not checksec.high_entropy_va:
+                entropy_va_res = "[red]No"
+            else:
+                entropy_va_res = "[green]Yes"
+
+            self.table_pe.add_row(str(filepath), nx_res, pie_res, canary_res, dynamic_base_res, entropy_va_res)
         else:
             raise NotImplementedError
 
@@ -226,6 +232,7 @@ class JSONOutput(AbstractChecksecOutput):
                 "pie": checksec.pie,
                 "canary": checksec.canary,
                 "dynamic_base": checksec.dynamic_base,
+                "high_entropy_va": checksec.high_entropy_va,
             }
         else:
             raise NotImplementedError
