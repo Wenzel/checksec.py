@@ -38,7 +38,11 @@ class PESecurity(BinarySecurity):
     @property
     def has_canary(self) -> bool:
         """Whether stack security cookie is enabled (/GS)"""
-        return True if self.bin.load_configuration.security_cookie != 0 else False
+        try:
+            return True if self.bin.load_configuration.security_cookie != 0 else False
+        except lief.not_found:
+            # no load_configuration
+            return False
 
     @property
     def has_dynamic_base(self) -> bool:
@@ -68,11 +72,15 @@ class PESecurity(BinarySecurity):
         # https://github.com/trailofbits/winchecksec/blob/v2.0.0/checksec.cpp#L280
         if not self.bin.header.machine == MACHINE_TYPES.I386:
             return False
-        return (
-            self.has_seh
-            and self.bin.load_configuration.se_handler_table != 0
-            and self.bin.load_configuration.se_handler_count != 0
-        )
+        try:
+            return (
+                self.has_seh
+                and self.bin.load_configuration.se_handler_table != 0
+                and self.bin.load_configuration.se_handler_count != 0
+            )
+        except lief.not_found:
+            # no load_configuration
+            return False
 
     @property
     def has_force_integrity(self) -> bool:
