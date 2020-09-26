@@ -13,18 +13,29 @@ from checksec.pe import PEChecksecData
 
 
 class AbstractChecksecOutput(ABC):
-    def __init__(self, total: int):
-        """
-
-        :param total: Total number of checksec elements to be processed
-        """
-        self.total = total
+    def __init__(self):
+        self.total = None
 
     def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         return
+
+    @abstractmethod
+    def enumerating_tasks_start(self):
+        """The tasks enumeration will be started"""
+        pass
+
+    @abstractmethod
+    def enumerating_tasks_stop(self, total: int):
+        """The tasks enumeration has stopped"""
+        self.total = total
+
+    @abstractmethod
+    def processing_tasks_start(self):
+        """Task processing has started"""
+        pass
 
     @abstractmethod
     def add_checksec_result(self, filepath: Path, checksec: Union[ELFChecksecData, PEChecksecData]):
@@ -43,9 +54,9 @@ class AbstractChecksecOutput(ABC):
 
 
 class RichOutput(AbstractChecksecOutput):
-    def __init__(self, total: int):
+    def __init__(self):
         """Init Rich Console and Table"""
-        super().__init__(total)
+        super().__init__()
         # init ELF table
         self.table_elf = Table(title="Checksec Results: ELF", expand=True)
         self.table_elf.add_column("File", justify="left", header_style="")
@@ -94,7 +105,25 @@ class RichOutput(AbstractChecksecOutput):
             console=self.console,
             transient=True,
         )
+        self.enumerate_bar = Progress(
+            TextColumn("[bold blue]Enumerating...", justify="center"),
+            BarColumn(bar_width=None),
+            console=self.console,
+            transient=True,
+        )
 
+        self.process_task_id = None
+
+    def enumerating_tasks_start(self):
+        # start progress bar
+        self.enumerate_bar.start()
+        self.enumerate_bar.add_task("Enumerating", start=False)
+
+    def enumerating_tasks_stop(self, total: int):
+        super().enumerating_tasks_stop(total)
+        self.enumerate_bar.stop()
+
+    def processing_tasks_start(self):
         # init progress bar
         self.process_bar.start()
         self.process_task_id = self.process_bar.add_task("Checking", total=self.total)
@@ -276,8 +305,8 @@ class RichOutput(AbstractChecksecOutput):
 
 
 class JSONOutput(AbstractChecksecOutput):
-    def __init__(self, total: int):
-        super().__init__(total)
+    def __init__(self):
+        super().__init__()
         self.data = {}
 
     def add_checksec_result(self, filepath: Path, checksec: Union[ELFChecksecData, PEChecksecData]):
