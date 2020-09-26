@@ -8,7 +8,7 @@ from .binary import BinarySecurity
 
 PEChecksecData = namedtuple(
     "PEChecksecData",
-    ["nx", "pie", "canary", "dynamic_base", "high_entropy_va", "guard_cf"],
+    ["nx", "pie", "canary", "dynamic_base", "high_entropy_va", "guard_cf", "force_integrity"],
 )
 
 
@@ -49,6 +49,11 @@ class PESecurity(BinarySecurity):
         return self.bin.optional_header.has(DLL_CHARACTERISTICS.GUARD_CF)
 
     @property
+    def has_force_integrity(self) -> bool:
+        """Whether FORCE_INTEGRITY is enabled"""
+        return self.bin.optional_header.has(DLL_CHARACTERISTICS.FORCE_INTEGRITY)
+
+    @property
     def checksec_state(self) -> PEChecksecData:
         return PEChecksecData(
             self.has_nx,
@@ -57,4 +62,5 @@ class PESecurity(BinarySecurity):
             self.has_dynamic_base,
             self.has_high_entropy_va,
             self.has_guard_cf,
+            self.has_force_integrity,
         )

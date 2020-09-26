@@ -69,6 +69,7 @@ class RichOutput(AbstractChecksecOutput):
         self.table_pe.add_column("Dynamic Base", justify="center")
         self.table_pe.add_column("High Entropy VA", justify="center")
         self.table_pe.add_column("Control Flow Guard", justify="center")
+        self.table_pe.add_column("Force Integrity", justify="center")
 
         # build progress bar
         self.progress_bar = Progress(
@@ -196,8 +197,20 @@ class RichOutput(AbstractChecksecOutput):
             else:
                 guard_cf_res = "[green]Yes"
 
+            if not checksec.force_integrity:
+                force_integrity_res = "[red]No"
+            else:
+                force_integrity_res = "[green]Yes"
+
             self.table_pe.add_row(
-                str(filepath), nx_res, pie_res, canary_res, dynamic_base_res, entropy_va_res, guard_cf_res
+                str(filepath),
+                nx_res,
+                pie_res,
+                canary_res,
+                dynamic_base_res,
+                entropy_va_res,
+                guard_cf_res,
+                force_integrity_res,
             )
         else:
             raise NotImplementedError
