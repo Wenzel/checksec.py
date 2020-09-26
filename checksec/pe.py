@@ -2,16 +2,13 @@ from collections import namedtuple
 from pathlib import Path
 
 import lief
+from lief.PE import DLL_CHARACTERISTICS
 
 from .binary import BinarySecurity
 
 PEChecksecData = namedtuple(
     "PEChecksecData",
-    [
-        "nx",
-        "pie",
-        "canary",
-    ],
+    ["nx", "pie", "canary", "dynamic_base"],
 )
 
 
@@ -37,5 +34,10 @@ class PESecurity(BinarySecurity):
         return True if self.bin.load_configuration.security_cookie != 0 else False
 
     @property
+    def has_dynamic_base(self) -> bool:
+        """Whether DYNAMIC_BASE is enabled"""
+        return self.bin.optional_header.has(DLL_CHARACTERISTICS.DYNAMIC_BASE)
+
+    @property
     def checksec_state(self) -> PEChecksecData:
-        return PEChecksecData(self.has_nx, self.has_pie, self.has_canary)
+        return PEChecksecData(self.has_nx, self.has_pie, self.has_canary, self.has_dynamic_base)

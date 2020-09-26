@@ -66,6 +66,7 @@ class RichOutput(AbstractChecksecOutput):
         self.table_pe.add_column("NX", justify="center")
         self.table_pe.add_column("PIE", justify="center")
         self.table_pe.add_column("Canary", justify="center")
+        self.table_pe.add_column("Dynamic Base", justify="center")
 
         # build progress bar
         self.progress_bar = Progress(
@@ -178,7 +179,12 @@ class RichOutput(AbstractChecksecOutput):
             else:
                 canary_res = "[green]Yes"
 
-            self.table_pe.add_row(str(filepath), nx_res, pie_res, canary_res)
+            if not checksec.dynamic_base:
+                dynamic_base_res = "[red]No"
+            else:
+                dynamic_base_res = "[green]Yes"
+
+            self.table_pe.add_row(str(filepath), nx_res, pie_res, canary_res, dynamic_base_res)
         else:
             raise NotImplementedError
 
@@ -218,7 +224,8 @@ class JSONOutput(AbstractChecksecOutput):
             self.data[str(filepath)] = {
                 "nx": checksec.nx,
                 "pie": checksec.pie,
-                "canary": checksec.canary
+                "canary": checksec.canary,
+                "dynamic_base": checksec.dynamic_base,
             }
         else:
             raise NotImplementedError
