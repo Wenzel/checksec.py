@@ -81,6 +81,12 @@ class RichOutput(AbstractChecksecOutput):
             BarColumn(bar_width=None),
             "[progress.percentage]{task.percentage:>3.1f}%",
         )
+        self.display_res_bar = Progress(
+            BarColumn(bar_width=None),
+            TextColumn("[bold blue]{task.description}", justify="center"),
+            BarColumn(bar_width=None),
+            transient=True,
+        )
         # init console
         self.console = Console()
 
@@ -251,10 +257,17 @@ class RichOutput(AbstractChecksecOutput):
 
     def print(self):
         self.progress_bar.__exit__(None, None, None)
+
         if self.table_elf.row_count > 0:
-            self.console.print(self.table_elf)
+            with self.display_res_bar:
+                task_id = self.display_res_bar.add_task("Displaying Results: ELF ...", start=False)
+                self.console.print(self.table_elf)
+                self.display_res_bar.remove_task(task_id)
         if self.table_pe.row_count > 0:
-            self.console.print(self.table_pe)
+            with self.display_res_bar:
+                task_id = self.display_res_bar.add_task("Displaying Results: PE ...", start=False)
+                self.console.print(self.table_pe)
+                self.display_res_bar.remove_task(task_id)
 
 
 class JSONOutput(AbstractChecksecOutput):
