@@ -37,7 +37,7 @@ class PESecurity(BinarySecurity):
 
     @property
     def has_canary(self) -> bool:
-        """Whether Security Cookie (/GS) is enabled"""
+        """Whether stack security cookie is enabled (/GS)"""
         return True if self.bin.load_configuration.security_cookie != 0 else False
 
     @property
@@ -55,23 +55,6 @@ class PESecurity(BinarySecurity):
     def has_high_entropy_va(self) -> bool:
         """Whether HIGH_ENTROPY_VA is enabled"""
         return self.bin.optional_header.has(DLL_CHARACTERISTICS.HIGH_ENTROPY_VA)
-
-    @property
-    def has_guard_cf(self) -> bool:
-        """Whether GUARD:CF is enabled"""
-        # winchecksec:
-        # https://github.com/trailofbits/winchecksec/blob/v2.0.0/checksec.cpp#L238
-        return self.is_aslr and self.bin.optional_header.has(DLL_CHARACTERISTICS.GUARD_CF)
-
-    @property
-    def has_force_integrity(self) -> bool:
-        """Whether FORCE_INTEGRITY is enabled"""
-        return self.bin.optional_header.has(DLL_CHARACTERISTICS.FORCE_INTEGRITY)
-
-    @property
-    def has_isolation(self) -> bool:
-        """Whether the binary has NO_ISOLATION disabled"""
-        return not self.bin.optional_header.has(DLL_CHARACTERISTICS.NO_ISOLATION)
 
     @property
     def has_seh(self) -> bool:
@@ -92,6 +75,31 @@ class PESecurity(BinarySecurity):
         )
 
     @property
+    def has_force_integrity(self) -> bool:
+        """Whether FORCE_INTEGRITY is enabled"""
+        # 2011 ?
+        return self.bin.optional_header.has(DLL_CHARACTERISTICS.FORCE_INTEGRITY)
+
+    @property
+    def has_guard_cf(self) -> bool:
+        """Whether Control Flow Guard is enabled"""
+        # November 2014 (Windows 8.1 Update 3)
+        # winchecksec:
+        # https://github.com/trailofbits/winchecksec/blob/v2.0.0/checksec.cpp#L238
+        return self.is_aslr and self.bin.optional_header.has(DLL_CHARACTERISTICS.GUARD_CF)
+
+    # code integrity: November 2015 (Windows 10 1511)
+
+    # Return Flow Guard: October 2016 (Windows 10 Redstone 2)
+
+    @property
+    def has_isolation(self) -> bool:
+        """Whether manifest isolation is enabled"""
+        # MSDN doc: https://docs.microsoft.com/en-us/cpp/build/reference/allowisolation-manifest-lookup?view=vs-2019
+        # November 2016
+        return not self.bin.optional_header.has(DLL_CHARACTERISTICS.NO_ISOLATION)
+
+    @property
     def checksec_state(self) -> PEChecksecData:
         return PEChecksecData(
             self.bin.header.machine,
@@ -100,9 +108,9 @@ class PESecurity(BinarySecurity):
             self.is_aslr,
             self.has_dynamic_base,
             self.has_high_entropy_va,
-            self.has_isolation,
             self.has_seh,
             self.has_safe_seh,
-            self.has_guard_cf,
             self.has_force_integrity,
+            self.has_guard_cf,
+            self.has_isolation,
         )
