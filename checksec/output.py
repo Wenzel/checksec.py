@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Union
 
+from lief.PE import MACHINE_TYPES
 from rich.console import Console
 from rich.progress import BarColumn, Progress, TextColumn
 from rich.table import Table
@@ -71,6 +72,7 @@ class RichOutput(AbstractChecksecOutput):
         self.table_pe.add_column("High Entropy VA", justify="center")
         self.table_pe.add_column("Isolation", justify="center")
         self.table_pe.add_column("SEH", justify="center")
+        self.table_pe.add_column("SafeSEH", justify="center")
         self.table_pe.add_column("Control Flow Guard", justify="center")
         self.table_pe.add_column("Force Integrity", justify="center")
 
@@ -196,7 +198,7 @@ class RichOutput(AbstractChecksecOutput):
                 dynamic_base_res = "[green]Yes"
 
             # this is only relevant is binary is 64 bits
-            if checksec.is64:
+            if checksec.machine == MACHINE_TYPES.AMD64:
                 if not checksec.high_entropy_va:
                     entropy_va_res = "[red]No"
                 else:
@@ -213,6 +215,15 @@ class RichOutput(AbstractChecksecOutput):
                 seh_res = "[red]No"
             else:
                 seh_res = "[green]Yes"
+
+            # only relevant if 32 bits
+            if checksec.machine == MACHINE_TYPES.I386:
+                if not checksec.safe_seh:
+                    safe_seh_res = "[red]No"
+                else:
+                    safe_seh_res = "[green]Yes"
+            else:
+                safe_seh_res = "/"
 
             if not checksec.guard_cf:
                 guard_cf_res = "[red]No"
@@ -234,6 +245,7 @@ class RichOutput(AbstractChecksecOutput):
                 entropy_va_res,
                 isolation_res,
                 seh_res,
+                safe_seh_res,
                 guard_cf_res,
                 force_integrity_res,
             )
@@ -282,6 +294,7 @@ class JSONOutput(AbstractChecksecOutput):
                 "high_entropy_va": checksec.high_entropy_va,
                 "isolation": checksec.isolation,
                 "seh": checksec.seh,
+                "safe_seh": checksec.safe_seh,
                 "guard_cf": checksec.guard_cf,
             }
         else:

@@ -9,7 +9,7 @@ from .binary import BinarySecurity
 PEChecksecData = namedtuple(
     "PEChecksecData",
     [
-        "is64",
+        "machine",
         "nx",
         "pie",
         "canary",
@@ -18,6 +18,7 @@ PEChecksecData = namedtuple(
         "high_entropy_va",
         "isolation",
         "seh",
+        "safe_seh",
         "guard_cf",
         "force_integrity",
     ],
@@ -34,11 +35,6 @@ class PESecurity(BinarySecurity):
 
     def __init__(self, pe_path: Path):
         super().__init__(pe_path)
-
-    @property
-    def is_64bits(self) -> bool:
-        """Whether the binary is 64 bits"""
-        return self.bin.header.machine == MACHINE_TYPES.AMD64
 
     @property
     def has_pie(self) -> bool:
@@ -86,9 +82,23 @@ class PESecurity(BinarySecurity):
         return not self.bin.optional_header.has(DLL_CHARACTERISTICS.NO_SEH)
 
     @property
+    def has_safe_seh(self) -> bool:
+        """Whether the binary has SafeSEH mitigations"""
+        # SafeSEH only applies to 32 bits
+        # winchecksec implementation:
+        # https://github.com/trailofbits/winchecksec/blob/v2.0.0/checksec.cpp#L280
+        if not self.bin.header.machine == MACHINE_TYPES.I386:
+            return False
+        return (
+            self.has_seh
+            and self.bin.load_configuration.se_handler_table != 0
+            and self.bin.load_configuration.se_handler_count != 0
+        )
+
+    @property
     def checksec_state(self) -> PEChecksecData:
         return PEChecksecData(
-            self.is_64bits,
+            self.bin.header.machine,
             self.has_nx,
             self.has_pie,
             self.has_canary,
@@ -97,6 +107,7 @@ class PESecurity(BinarySecurity):
             self.has_high_entropy_va,
             self.has_isolation,
             self.has_seh,
+            self.has_safe_seh,
             self.has_guard_cf,
             self.has_force_integrity,
         )
