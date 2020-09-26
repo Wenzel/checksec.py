@@ -75,24 +75,27 @@ class RichOutput(AbstractChecksecOutput):
         self.table_pe.add_column("Control Flow Guard", justify="center")
         self.table_pe.add_column("Isolation", justify="center")
 
+        # init console
+        self.console = Console()
+
         # build progress bar
         self.progress_bar = Progress(
             TextColumn("[bold blue]Processing...", justify="left"),
             BarColumn(bar_width=None),
             "[progress.percentage]{task.percentage:>3.1f}%",
+            console=self.console,
         )
         self.display_res_bar = Progress(
             BarColumn(bar_width=None),
             TextColumn("[bold blue]{task.description}", justify="center"),
             BarColumn(bar_width=None),
+            console=self.console,
             transient=True,
         )
-        # init console
-        self.console = Console()
 
         # init progress bar
-        self.bar = self.progress_bar.__enter__()
-        self.task_id = self.bar.add_task("Checking", total=self.total)
+        self.progress_bar.start()
+        self.task_id = self.progress_bar.add_task("Checking", total=self.total)
 
     def add_checksec_result(self, filepath: Path, checksec: Union[ELFChecksecData, PEChecksecData]):
         if isinstance(checksec, ELFChecksecData):
@@ -253,10 +256,10 @@ class RichOutput(AbstractChecksecOutput):
 
     def checksec_result_end(self):
         """Update progress bar"""
-        self.bar.update(self.task_id, advance=1)
+        self.progress_bar.update(self.task_id, advance=1)
 
     def print(self):
-        self.progress_bar.__exit__(None, None, None)
+        self.progress_bar.stop()
 
         if self.table_elf.row_count > 0:
             with self.display_res_bar:
