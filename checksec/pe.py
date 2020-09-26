@@ -43,6 +43,9 @@ class PESecurity(BinarySecurity):
         except lief.not_found:
             # no load_configuration
             return False
+        except AttributeError:
+            # no security cookie
+            return False
 
     @property
     def has_dynamic_base(self) -> bool:
@@ -80,6 +83,9 @@ class PESecurity(BinarySecurity):
             )
         except lief.not_found:
             # no load_configuration
+            return False
+        except AttributeError:
+            # no se_handler_xx
             return False
 
     @property
