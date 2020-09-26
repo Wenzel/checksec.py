@@ -8,7 +8,18 @@ from .binary import BinarySecurity
 
 PEChecksecData = namedtuple(
     "PEChecksecData",
-    ["is64", "nx", "pie", "canary", "aslr", "dynamic_base", "high_entropy_va", "guard_cf", "force_integrity"],
+    [
+        "is64",
+        "nx",
+        "pie",
+        "canary",
+        "aslr",
+        "dynamic_base",
+        "high_entropy_va",
+        "isolation",
+        "guard_cf",
+        "force_integrity",
+    ],
 )
 
 
@@ -65,6 +76,11 @@ class PESecurity(BinarySecurity):
         return self.bin.optional_header.has(DLL_CHARACTERISTICS.FORCE_INTEGRITY)
 
     @property
+    def has_isolation(self) -> bool:
+        """Whether the binary has NO_ISOLATION disabled"""
+        return not self.bin.optional_header.has(DLL_CHARACTERISTICS.NO_ISOLATION)
+
+    @property
     def checksec_state(self) -> PEChecksecData:
         return PEChecksecData(
             self.is_64bits,
@@ -74,6 +90,7 @@ class PESecurity(BinarySecurity):
             self.is_aslr,
             self.has_dynamic_base,
             self.has_high_entropy_va,
+            self.has_isolation,
             self.has_guard_cf,
             self.has_force_integrity,
         )

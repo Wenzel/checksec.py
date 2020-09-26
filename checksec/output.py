@@ -69,6 +69,7 @@ class RichOutput(AbstractChecksecOutput):
         self.table_pe.add_column("ASLR", justify="center")
         self.table_pe.add_column("Dynamic Base", justify="center")
         self.table_pe.add_column("High Entropy VA", justify="center")
+        self.table_pe.add_column("Isolation", justify="center")
         self.table_pe.add_column("Control Flow Guard", justify="center")
         self.table_pe.add_column("Force Integrity", justify="center")
 
@@ -202,6 +203,11 @@ class RichOutput(AbstractChecksecOutput):
             else:
                 entropy_va_res = "/"
 
+            if not checksec.isolation:
+                isolation_res = "[red]No"
+            else:
+                isolation_res = "[green]Yes"
+
             if not checksec.guard_cf:
                 guard_cf_res = "[red]No"
             else:
@@ -220,6 +226,7 @@ class RichOutput(AbstractChecksecOutput):
                 aslr_res,
                 dynamic_base_res,
                 entropy_va_res,
+                isolation_res,
                 guard_cf_res,
                 force_integrity_res,
             )
@@ -266,6 +273,7 @@ class JSONOutput(AbstractChecksecOutput):
                 "aslr": checksec.aslr,
                 "dynamic_base": checksec.dynamic_base,
                 "high_entropy_va": checksec.high_entropy_va,
+                "isolation": checksec.isolation,
                 "guard_cf": checksec.guard_cf,
             }
         else:
