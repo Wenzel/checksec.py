@@ -66,6 +66,7 @@ class RichOutput(AbstractChecksecOutput):
         self.table_pe.add_column("NX", justify="center")
         self.table_pe.add_column("PIE", justify="center")
         self.table_pe.add_column("Canary", justify="center")
+        self.table_pe.add_column("ASLR", justify="center")
         self.table_pe.add_column("Dynamic Base", justify="center")
         self.table_pe.add_column("High Entropy VA", justify="center")
         self.table_pe.add_column("Control Flow Guard", justify="center")
@@ -182,6 +183,11 @@ class RichOutput(AbstractChecksecOutput):
             else:
                 canary_res = "[green]Yes"
 
+            if not checksec.aslr:
+                aslr_res = "[red]No"
+            else:
+                aslr_res = "[green]Yes"
+
             if not checksec.dynamic_base:
                 dynamic_base_res = "[red]No"
             else:
@@ -211,6 +217,7 @@ class RichOutput(AbstractChecksecOutput):
                 nx_res,
                 pie_res,
                 canary_res,
+                aslr_res,
                 dynamic_base_res,
                 entropy_va_res,
                 guard_cf_res,
