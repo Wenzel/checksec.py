@@ -12,8 +12,10 @@ Options:
 """
 
 import os
+import threading
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
+from threading import Lock
 from typing import List, Union
 
 from docopt import docopt
@@ -49,6 +51,13 @@ def checksec_file(filepath: Path) -> Union["ELFChecksecData", "PEChecksecData"]:
     return binary.checksec_state
 
 
+def thread_start(pool, lock, filepath_list, recursive, future_to_filepath):
+    for filepath in walk_filepath_list(filepath_list, recursive):
+        future = pool.submit(checksec_file, filepath)
+        # update shared dict
+        future_to_filepath[future] = filepath
+
+
 def main(args):
     filepath_list = [Path(entry) for entry in args["<file/directory>"]]
     debug = args["--debug"]
@@ -69,30 +78,36 @@ def main(args):
         check_output.enumerating_tasks_stop(count)
         with ProcessPoolExecutor(max_workers=workers) as pool:
             check_output.processing_tasks_start()
-            future_to_checksec = {
-                pool.submit(checksec_file, filepath): filepath
-                for filepath in walk_filepath_list(filepath_list, recursive)
-            }
-            for future in as_completed(future_to_checksec):
-                filepath = future_to_checksec[future]
-                try:
-                    data = future.result()
-                except FileNotFoundError:
-                    if debug:
-                        print(f"{filepath} does not exist")
-                except ErrorNotAnElf:
-                    if debug:
-                        print(f"{filepath} is not a valid ELF")
-                except ErrorParsingFailed:
-                    if debug:
-                        print(f"{filepath} ELF parsing failed")
-                except NotImplementedError:
-                    if debug:
-                        print(f"{filepath} executable format is not supported. (Only ELF or PE)")
-                else:
-                    check_output.add_checksec_result(filepath, data)
-                finally:
-                    check_output.checksec_result_end()
+            lock = Lock()
+            # shared dict between threads
+            # [Future] => [filepath]
+            future_to_filepath = {}
+            submit_thread = threading.Thread(
+                target=thread_start, args=(pool, lock, filepath_list, recursive, future_to_filepath)
+            )
+            submit_thread.start()
+            while len(future_to_filepath.keys()) != count:
+                for future in as_completed(future_to_filepath):
+                    filepath = future_to_filepath[future]
+                    # print(f"processing future: {filepath}")
+                    try:
+                        data = future.result()
+                    except FileNotFoundError:
+                        if debug:
+                            print(f"{filepath} does not exist")
+                    except ErrorNotAnElf:
+                        if debug:
+                            print(f"{filepath} is not a valid ELF")
+                    except ErrorParsingFailed:
+                        if debug:
+                            print(f"{filepath} ELF parsing failed")
+                    except NotImplementedError:
+                        if debug:
+                            print(f"{filepath} executable format is not supported. (Only ELF or PE)")
+                    else:
+                        check_output.add_checksec_result(filepath, data)
+                    finally:
+                        check_output.checksec_result_end()
 
         check_output.print()
 
