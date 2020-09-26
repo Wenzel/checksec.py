@@ -8,7 +8,7 @@ with open("requirements.txt") as f:
 
 setuptools.setup(
     name="checksec.py",
-    version="0.2.0",
+    version="0.3.0",
     author="Mathieu Tarral",
     author_email="mathieu.tarral@protonmail.com",
     description="Checksec tool implemented in Python",
