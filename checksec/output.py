@@ -79,9 +79,11 @@ class RichOutput(AbstractChecksecOutput):
         self.console = Console()
 
         # build progress bar
-        self.progress_bar = Progress(
+        self.process_bar = Progress(
             TextColumn("[bold blue]Processing...", justify="left"),
             BarColumn(bar_width=None),
+            "{task.completed}/{task.total}",
+            "•",
             "[progress.percentage]{task.percentage:>3.1f}%",
             console=self.console,
         )
@@ -94,8 +96,8 @@ class RichOutput(AbstractChecksecOutput):
         )
 
         # init progress bar
-        self.progress_bar.start()
-        self.task_id = self.progress_bar.add_task("Checking", total=self.total)
+        self.process_bar.start()
+        self.process_task_id = self.process_bar.add_task("Checking", total=self.total)
 
     def add_checksec_result(self, filepath: Path, checksec: Union[ELFChecksecData, PEChecksecData]):
         if isinstance(checksec, ELFChecksecData):
@@ -256,10 +258,10 @@ class RichOutput(AbstractChecksecOutput):
 
     def checksec_result_end(self):
         """Update progress bar"""
-        self.progress_bar.update(self.task_id, advance=1)
+        self.process_bar.update(self.process_task_id, advance=1)
 
     def print(self):
-        self.progress_bar.stop()
+        self.process_bar.stop()
 
         if self.table_elf.row_count > 0:
             with self.display_res_bar:
