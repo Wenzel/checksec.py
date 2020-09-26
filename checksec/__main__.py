@@ -14,7 +14,7 @@ Options:
 import os
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
-from typing import List
+from typing import List, Union
 
 from docopt import docopt
 from rich import print
@@ -22,6 +22,7 @@ from rich import print
 from .elf import ELFChecksecData, ELFSecurity, is_elf
 from .errors import ErrorNotAnElf, ErrorParsingFailed
 from .output import JSONOutput, RichOutput
+from .pe import PEChecksecData, PESecurity, is_pe
 
 
 def walk_filepath_list(filepath_list: List[Path], recursive: bool = False):
@@ -36,41 +37,16 @@ def walk_filepath_list(filepath_list: List[Path], recursive: bool = False):
             yield path
 
 
-def checksec_file(filepath: Path) -> ELFChecksecData:
+def checksec_file(filepath: Path) -> Union["ELFChecksecData", "PEChecksecData"]:
     if not filepath.exists():
         raise FileNotFoundError()
-    if not is_elf(filepath):
-        raise ErrorNotAnElf(filepath)
-    checksec = ELFSecurity(filepath)
-
-    fortified_count = len(checksec.fortified)
-    fortifiable_count = len(checksec.fortifiable)
-    if not checksec.is_fortified:
-        score = 0
+    if is_elf(filepath):
+        binary = ELFSecurity(filepath)
+    elif is_pe(filepath):
+        binary = PESecurity(filepath)
     else:
-        # fortified
-        if fortified_count == 0:
-            # all fortified !
-            score = 100
-        else:
-            score = (fortified_count * 100) / (fortified_count + fortifiable_count)
-            score = round(score)
-
-    fortify_source = True if fortified_count != 0 else False
-    checksec_data = ELFChecksecData(
-        checksec.relro,
-        checksec.has_canary,
-        checksec.has_nx,
-        checksec.pie,
-        checksec.has_rpath,
-        checksec.has_runpath,
-        not checksec.is_stripped,
-        fortify_source,
-        fortified_count,
-        fortifiable_count,
-        score,
-    )
-    return checksec_data
+        raise NotImplementedError
+    return binary.checksec_state
 
 
 def main(args):
@@ -108,6 +84,9 @@ def main(args):
                 except ErrorParsingFailed:
                     if debug:
                         print(f"{filepath} ELF parsing failed")
+                except NotImplementedError:
+                    if debug:
+                        print(f"{filepath} executable format is not supported. (Only ELF or PE)")
                 else:
                     check_output.add_checksec_result(filepath, data)
                 finally:
