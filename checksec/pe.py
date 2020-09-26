@@ -11,7 +11,6 @@ PEChecksecData = namedtuple(
     [
         "machine",
         "nx",
-        "pie",
         "canary",
         "aslr",
         "dynamic_base",
@@ -35,11 +34,6 @@ class PESecurity(BinarySecurity):
 
     def __init__(self, pe_path: Path):
         super().__init__(pe_path)
-
-    @property
-    def has_pie(self) -> bool:
-        """Whether PIE is enabled"""
-        return self.bin.is_pie
 
     @property
     def has_canary(self) -> bool:
@@ -102,7 +96,6 @@ class PESecurity(BinarySecurity):
         return PEChecksecData(
             self.bin.header.machine,
             self.has_nx,
-            self.has_pie,
             self.has_canary,
             self.is_aslr,
             self.has_dynamic_base,

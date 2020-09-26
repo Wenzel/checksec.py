@@ -65,7 +65,6 @@ class RichOutput(AbstractChecksecOutput):
         self.table_pe = Table(title="Checksec Results: PE", expand=True)
         self.table_pe.add_column("File", justify="left", header_style="")
         self.table_pe.add_column("NX", justify="center")
-        self.table_pe.add_column("PIE", justify="center")
         self.table_pe.add_column("Canary", justify="center")
         self.table_pe.add_column("ASLR", justify="center")
         self.table_pe.add_column("Dynamic Base", justify="center")
@@ -177,11 +176,6 @@ class RichOutput(AbstractChecksecOutput):
             else:
                 nx_res = "[green]Yes"
 
-            if not checksec.pie:
-                pie_res = "[red]No"
-            else:
-                pie_res = "[green]Yes"
-
             if not checksec.canary:
                 canary_res = "[red]No"
             else:
@@ -238,7 +232,6 @@ class RichOutput(AbstractChecksecOutput):
             self.table_pe.add_row(
                 str(filepath),
                 nx_res,
-                pie_res,
                 canary_res,
                 aslr_res,
                 dynamic_base_res,
@@ -287,7 +280,6 @@ class JSONOutput(AbstractChecksecOutput):
         elif isinstance(checksec, PEChecksecData):
             self.data[str(filepath)] = {
                 "nx": checksec.nx,
-                "pie": checksec.pie,
                 "canary": checksec.canary,
                 "aslr": checksec.aslr,
                 "dynamic_base": checksec.dynamic_base,
