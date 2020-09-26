@@ -2,13 +2,13 @@ from collections import namedtuple
 from pathlib import Path
 
 import lief
-from lief.PE import DLL_CHARACTERISTICS
+from lief.PE import DLL_CHARACTERISTICS, MACHINE_TYPES
 
 from .binary import BinarySecurity
 
 PEChecksecData = namedtuple(
     "PEChecksecData",
-    ["nx", "pie", "canary", "dynamic_base", "high_entropy_va", "guard_cf", "force_integrity"],
+    ["is64", "nx", "pie", "canary", "dynamic_base", "high_entropy_va", "guard_cf", "force_integrity"],
 )
 
 
@@ -22,6 +22,11 @@ class PESecurity(BinarySecurity):
 
     def __init__(self, pe_path: Path):
         super().__init__(pe_path)
+
+    @property
+    def is_64bits(self) -> bool:
+        """Whether the binary is 64 bits"""
+        return self.bin.header.machine == MACHINE_TYPES.AMD64
 
     @property
     def has_pie(self) -> bool:
@@ -56,6 +61,7 @@ class PESecurity(BinarySecurity):
     @property
     def checksec_state(self) -> PEChecksecData:
         return PEChecksecData(
+            self.is_64bits,
             self.has_nx,
             self.has_pie,
             self.has_canary,

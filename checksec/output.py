@@ -187,10 +187,14 @@ class RichOutput(AbstractChecksecOutput):
             else:
                 dynamic_base_res = "[green]Yes"
 
-            if not checksec.high_entropy_va:
-                entropy_va_res = "[red]No"
+            # this is only relevant is binary is 64 bits
+            if checksec.is64:
+                if not checksec.high_entropy_va:
+                    entropy_va_res = "[red]No"
+                else:
+                    entropy_va_res = "[green]Yes"
             else:
-                entropy_va_res = "[green]Yes"
+                entropy_va_res = "/"
 
             if not checksec.guard_cf:
                 guard_cf_res = "[red]No"
