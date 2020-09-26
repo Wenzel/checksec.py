@@ -8,7 +8,7 @@ from .binary import BinarySecurity
 
 PEChecksecData = namedtuple(
     "PEChecksecData",
-    ["nx", "pie", "canary", "dynamic_base", "high_entropy_va"],
+    ["nx", "pie", "canary", "dynamic_base", "high_entropy_va", "guard_cf"],
 )
 
 
@@ -44,7 +44,17 @@ class PESecurity(BinarySecurity):
         return self.bin.optional_header.has(DLL_CHARACTERISTICS.HIGH_ENTROPY_VA)
 
     @property
+    def has_guard_cf(self) -> bool:
+        """Whether GUARD:CF is enabled"""
+        return self.bin.optional_header.has(DLL_CHARACTERISTICS.GUARD_CF)
+
+    @property
     def checksec_state(self) -> PEChecksecData:
         return PEChecksecData(
-            self.has_nx, self.has_pie, self.has_canary, self.has_dynamic_base, self.has_high_entropy_va
+            self.has_nx,
+            self.has_pie,
+            self.has_canary,
+            self.has_dynamic_base,
+            self.has_high_entropy_va,
+            self.has_guard_cf,
         )
