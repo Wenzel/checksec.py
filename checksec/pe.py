@@ -17,6 +17,7 @@ PEChecksecData = namedtuple(
         "dynamic_base",
         "high_entropy_va",
         "isolation",
+        "seh",
         "guard_cf",
         "force_integrity",
     ],
@@ -81,6 +82,10 @@ class PESecurity(BinarySecurity):
         return not self.bin.optional_header.has(DLL_CHARACTERISTICS.NO_ISOLATION)
 
     @property
+    def has_seh(self) -> bool:
+        return not self.bin.optional_header.has(DLL_CHARACTERISTICS.NO_SEH)
+
+    @property
     def checksec_state(self) -> PEChecksecData:
         return PEChecksecData(
             self.is_64bits,
@@ -91,6 +96,7 @@ class PESecurity(BinarySecurity):
             self.has_dynamic_base,
             self.has_high_entropy_va,
             self.has_isolation,
+            self.has_seh,
             self.has_guard_cf,
             self.has_force_integrity,
         )
