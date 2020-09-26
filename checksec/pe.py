@@ -65,7 +65,9 @@ class PESecurity(BinarySecurity):
     @property
     def has_guard_cf(self) -> bool:
         """Whether GUARD:CF is enabled"""
-        return self.bin.optional_header.has(DLL_CHARACTERISTICS.GUARD_CF)
+        # winchecksec:
+        # https://github.com/trailofbits/winchecksec/blob/v2.0.0/checksec.cpp#L238
+        return self.is_aslr and self.bin.optional_header.has(DLL_CHARACTERISTICS.GUARD_CF)
 
     @property
     def has_force_integrity(self) -> bool:
