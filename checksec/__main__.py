@@ -56,17 +56,19 @@ def main(args):
     json = args["--json"]
     recursive = args["--recursive"]
 
-    # we need to consume the iterator once to get the total
-    # for the progress bar
-    count = sum(1 for i in walk_filepath_list(filepath_list, recursive))
-
     # default output: Rich console
     output_cls = RichOutput
     if json:
         output_cls = JSONOutput
 
-    with output_cls(count) as check_output:
+    with output_cls() as check_output:
+        # we need to consume the iterator once to get the total
+        # for the progress bar
+        check_output.enumerating_tasks_start()
+        count = sum(1 for i in walk_filepath_list(filepath_list, recursive))
+        check_output.enumerating_tasks_stop(count)
         with ProcessPoolExecutor(max_workers=workers) as pool:
+            check_output.processing_tasks_start()
             future_to_checksec = {
                 pool.submit(checksec_file, filepath): filepath
                 for filepath in walk_filepath_list(filepath_list, recursive)
