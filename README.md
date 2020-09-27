@@ -54,3 +54,5 @@ source venv/bin/activate
 ## References
 
 - [@apogiatzis](https://github.com/apogiatzis) [Gist checksec.py](https://gist.github.com/apogiatzis/fb617cd118a9882749b5cb167dae0c5d)
+- [checksec.sh](https://github.com/slimm609/checksec.sh)
+- [winchecksec](https://github.com/trailofbits/winchecksec)
