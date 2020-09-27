@@ -3,7 +3,7 @@
 </h1>
 
 <h3 align="center">
-Checksec tool in Python, based on LIEF
+Checksec tool in Python, Rich output, based on LIEF
 </h3>
 
 <p align="center">
@@ -21,6 +21,10 @@ Checksec tool in Python, based on LIEF
 ## Overview
 
 A simple tool to verify the security properties of your binaries.
+
+Based on:
+- [Rich](https://github.com/willmcgugan/rich): Beautiful terminal output formatting
+- [LIEF](https://github.com/lief-project/LIEF): Cross-platform library to parse, modify and abstract ELF, PE and Mach-O formats
 
 Supported formats:
 
