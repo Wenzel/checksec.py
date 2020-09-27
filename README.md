@@ -55,6 +55,8 @@ source venv/bin/activate
 
 ![analyzing_local_bin](https://user-images.githubusercontent.com/964610/94361570-87a8cf80-00b5-11eb-8edd-5d579f15baaf.png)
 
+Check `--help` for more options
+
 ## References
 
 - [@apogiatzis](https://github.com/apogiatzis) [Gist checksec.py](https://gist.github.com/apogiatzis/fb617cd118a9882749b5cb167dae0c5d)
