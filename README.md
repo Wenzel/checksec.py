@@ -13,7 +13,7 @@ Checksec tool in Python, based on LIEF
   <a href="https://pypi.org/project/checksec.py/">
     <img src="https://img.shields.io/pypi/v/checksec.py?color=green" alt="PyPI package badge"/>
   </a>
-  <a href="">
+  <a href="https://pypi.org/project/checksec.py/">
     <img src="https://img.shields.io/pypi/pyversions/checksec.py" alt="Python version badge"/>
   </a>
 </p>
@@ -40,6 +40,16 @@ virtualenv -p python3 venv
 source venv/bin/activate
 (venv) pip install .
 ~~~
+
+## Usage
+
+~~~
+(venv) checkec <file_or_directory>...
+~~~
+
+### Example: `/usr/local/bin`
+
+![analyzing_local_bin](https://user-images.githubusercontent.com/964610/94361570-87a8cf80-00b5-11eb-8edd-5d579f15baaf.png)
 
 ## References
 
