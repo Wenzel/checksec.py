@@ -1,8 +1,22 @@
-# checksec.py
+<h1 align="center">
+  <br>checksec.py</br>
+</h1>
 
-![](https://github.com/Wenzel/checksec.py/workflows/build/badge.svg)
+<h3 align="center">
+Checksec tool in Python, based on LIEF
+</h3>
 
-> Checksec tool in Python. Based on LIEF
+<p align="center">
+  <a href="https://github.com/Wenzel/checksec.py/actions?query=workflow%3ACI">
+    <img src="https://github.com/Wenzel/checksec.py/workflows/CI/badge.svg" alt="CI badge"/>
+  </a>
+  <a href="https://pypi.org/project/checksec.py/">
+    <img src="https://img.shields.io/pypi/v/checksec.py?color=green" alt="PyPI package badge"/>
+  </a>
+  <a href="">
+    <img src="https://img.shields.io/pypi/pyversions/checksec.py" alt="Python version badge"/>
+  </a>
+</p>
 
 ## Overview
 
@@ -11,7 +25,7 @@ A simple tool to verify the security properties of your binaries.
 Supported formats:
 
 - [x] `ELF`
-- [ ] `PE`
+- [x] `PE`
 - [ ] `Mach-O`
 
 ## Requirements
