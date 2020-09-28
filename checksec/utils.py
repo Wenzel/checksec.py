@@ -3,6 +3,7 @@ import struct
 import subprocess
 import shutil
 import re
+import logging
 from pathlib import Path
 
 import lddwrap
@@ -23,6 +24,7 @@ LIBC_PATH_POSSIBILITIES = [
 
 def find_libc():
     """Find the fullpath to the libc library with multiple methods"""
+    libc_path = None
     try:
         libc_path = find_library_full("c")
     except FileNotFoundError:
@@ -31,15 +33,20 @@ def find_libc():
             libc_path = find_libc_ldd()
         except FileNotFoundError:
             # test hardcoded paths
+            logging.debug("Finding libc path: hardcoded paths")
             for maybe_libc in LIBC_PATH_POSSIBILITIES:
                 if Path(maybe_libc).exists():
-                    return maybe_libc
-            raise RuntimeError("Cannot find a suitable libc path on your system")
+                    libc_path = maybe_libc
+                    break
+    if libc_path is None:
+        raise RuntimeError("Cannot find a suitable libc path on your system")
+    logging.debug("Found libc: %s", libc_path)
     return libc_path
 
 
 def find_libc_ldd():
     """Find libc path with ldd utility"""
+    logging.debug("Finding libc path: ldd")
     # first get ld path
     ld_path = shutil.which("ld")
     if not ld_path:
@@ -55,6 +62,7 @@ def find_libc_ldd():
 
 def find_library_full(name):
     """https://stackoverflow.com/a/29227195/3017219"""
+    logging.debug("Finding libc path: ldconfig")
     # see ctypes.find_library code
     uname = os.uname()[4]
     if uname.startswith("arm"):
