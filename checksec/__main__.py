@@ -12,15 +12,15 @@ Options:
 """
 
 import os
+import logging
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
 from typing import List, Union
 
 from docopt import docopt
-from rich import print
 
 from .elf import ELFChecksecData, ELFSecurity, is_elf
-from .errors import ErrorNotAnElf, ErrorParsingFailed
+from .errors import ErrorParsingFailed
 from .output import JSONOutput, RichOutput
 from .pe import PEChecksecData, PESecurity, is_pe
 
@@ -56,6 +56,12 @@ def main(args):
     json = args["--json"]
     recursive = args["--recursive"]
 
+    # logging
+    formatter = "%(asctime)s %(levelname)s:%(name)s:%(message)s"
+    log_lvl = logging.INFO
+    if debug:
+        log_lvl = logging.DEBUG
+    logging.basicConfig(level=log_lvl, format=formatter)
     # default output: Rich console
     output_cls = RichOutput
     if json:
@@ -78,17 +84,11 @@ def main(args):
                 try:
                     data = future.result()
                 except FileNotFoundError:
-                    if debug:
-                        print(f"{filepath} does not exist")
-                except ErrorNotAnElf:
-                    if debug:
-                        print(f"{filepath} is not a valid ELF")
+                    logging.debug("%s does not exist", filepath)
                 except ErrorParsingFailed:
-                    if debug:
-                        print(f"{filepath} ELF parsing failed")
+                    logging.debug("%s LIEF parsing failed")
                 except NotImplementedError:
-                    if debug:
-                        print(f"{filepath} executable format is not supported. (Only ELF or PE)")
+                    logging.debug("%s: Not an ELF/PE. Skipping", filepath)
                 else:
                     check_output.add_checksec_result(filepath, data)
                 finally:
