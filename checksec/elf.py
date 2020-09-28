@@ -7,7 +7,7 @@ from typing import List
 import lief
 
 from .binary import BinarySecurity
-from .errors import ErrorNotAnElf, ErrorParsingFailed
+from .errors import ErrorParsingFailed
 from .utils import find_library_full
 
 FORTIFIED_END_MARKER = "_chk"
@@ -57,8 +57,6 @@ class Libc:
     def __init__(self, libpath: Path = None):
         if libpath is None:
             libpath = Path(find_library_full("c"))
-        if not lief.is_elf(str(libpath)):
-            raise ErrorNotAnElf(libpath)
         self.libc = lief.parse(str(libpath))
         if not self.libc:
             raise ErrorParsingFailed(libpath)
