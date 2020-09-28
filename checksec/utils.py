@@ -1,7 +1,56 @@
 import os
-import re
 import struct
 import subprocess
+import shutil
+import re
+from pathlib import Path
+
+import lddwrap
+
+
+LIBC_PATH_POSSIBILITIES = [
+    "/lib/libc.so.6",
+    "/lib/libc.so.7",
+    "/lib/libc.so",
+    "/lib64/libc.so.6",
+    "/lib/i386-linux-gnu/libc.so.6",
+    "/lib/x86_64-linux-gnu/libc.so.6",
+    "/lib/arm-linux-gnueabihf/libc.so.6",
+    "/lib/aarch64-linux-gnu/libc.so.6",
+    "/usr/x86_64-gentoo-linux-musl/bin/ld",
+]
+
+
+def find_libc():
+    """Find the fullpath to the libc library with multiple methods"""
+    try:
+        libc_path = find_library_full("c")
+    except FileNotFoundError:
+        # ldconfig is not accessible as user
+        try:
+            libc_path = find_libc_ldd()
+        except FileNotFoundError:
+            # test hardcoded paths
+            for maybe_libc in LIBC_PATH_POSSIBILITIES:
+                if Path(maybe_libc).exists():
+                    return maybe_libc
+            raise RuntimeError("Cannot find a suitable libc path on your system")
+    return libc_path
+
+
+def find_libc_ldd():
+    """Find libc path with ldd utility"""
+    # first get ld path
+    ld_path = shutil.which("ld")
+    if not ld_path:
+        raise FileNotFoundError("Failed to locate ld executable")
+    # find libc
+    libc_possibles = [dep.path for dep in lddwrap.list_dependencies(Path(ld_path)) if dep.soname.startswith("libc.so")]
+    if not libc_possibles:
+        raise FileNotFoundError("Failed to find libc")
+    if len(libc_possibles) > 1:
+        raise FileNotFoundError("Found multiple libc")
+    return libc_possibles[0]
 
 
 def find_library_full(name):
