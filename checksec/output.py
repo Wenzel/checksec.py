@@ -22,17 +22,14 @@ class AbstractChecksecOutput(ABC):
     def __exit__(self, exc_type, exc_val, exc_tb):
         return
 
-    @abstractmethod
     def enumerating_tasks_start(self):
         """The tasks enumeration will be started"""
         pass
 
-    @abstractmethod
     def enumerating_tasks_stop(self, total: int):
         """The tasks enumeration has stopped"""
         self.total = total
 
-    @abstractmethod
     def processing_tasks_start(self):
         """Task processing has started"""
         pass
@@ -42,10 +39,9 @@ class AbstractChecksecOutput(ABC):
         """Add a checksec file result to the output"""
         raise NotImplementedError
 
-    @abstractmethod
     def checksec_result_end(self):
         """This method is trigger for every file processed, even if the processing failed."""
-        raise NotImplementedError
+        pass
 
     @abstractmethod
     def print(self):
@@ -311,7 +307,7 @@ class JSONOutput(AbstractChecksecOutput):
 
     def add_checksec_result(self, filepath: Path, checksec: Union[ELFChecksecData, PEChecksecData]):
         if isinstance(checksec, ELFChecksecData):
-            self.data[str(filepath)] = {
+            self.data[str(filepath.resolve())] = {
                 "relro": checksec.relro.name,
                 "canary": checksec.canary,
                 "nx": checksec.nx,
@@ -325,7 +321,7 @@ class JSONOutput(AbstractChecksecOutput):
                 "fortify_score": checksec.fortify_score,
             }
         elif isinstance(checksec, PEChecksecData):
-            self.data[str(filepath)] = {
+            self.data[str(filepath.resolve())] = {
                 "nx": checksec.nx,
                 "canary": checksec.canary,
                 "aslr": checksec.aslr,
