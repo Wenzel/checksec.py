@@ -60,10 +60,10 @@ class RichOutput(AbstractChecksecOutput):
         # init ELF table
         self.table_elf = Table(title="Checksec Results: ELF", expand=True)
         self.table_elf.add_column("File", justify="left", header_style="")
-        self.table_elf.add_column("Relro", justify="center")
-        self.table_elf.add_column("Canary", justify="center")
         self.table_elf.add_column("NX", justify="center")
         self.table_elf.add_column("PIE", justify="center")
+        self.table_elf.add_column("Canary", justify="center")
+        self.table_elf.add_column("Relro", justify="center")
         self.table_elf.add_column("RPATH", justify="center")
         self.table_elf.add_column("RUNPATH", justify="center")
         self.table_elf.add_column("Symbols", justify="center")
@@ -131,19 +131,6 @@ class RichOutput(AbstractChecksecOutput):
     def add_checksec_result(self, filepath: Path, checksec: Union[ELFChecksecData, PEChecksecData]):
         if isinstance(checksec, ELFChecksecData):
             # display results
-            relro = checksec.relro
-            if relro == RelroType.No:
-                relro_res = f"[red]{relro.name}"
-            elif relro == RelroType.Partial:
-                relro_res = f"[yellow]{relro.name}"
-            else:
-                relro_res = f"[green]{relro.name}"
-
-            if not checksec.canary:
-                canary_res = "[red]No"
-            else:
-                canary_res = "[green]Yes"
-
             if not checksec.nx:
                 nx_res = "[red]No"
             else:
@@ -156,6 +143,19 @@ class RichOutput(AbstractChecksecOutput):
                 pie_res = f"[yellow]{pie.name}"
             else:
                 pie_res = "[green]Yes"
+
+            if not checksec.canary:
+                canary_res = "[red]No"
+            else:
+                canary_res = "[green]Yes"
+
+            relro = checksec.relro
+            if relro == RelroType.No:
+                relro_res = f"[red]{relro.name}"
+            elif relro == RelroType.Partial:
+                relro_res = f"[yellow]{relro.name}"
+            else:
+                relro_res = f"[green]{relro.name}"
 
             if checksec.rpath:
                 rpath_res = "[red]Yes"
@@ -198,10 +198,10 @@ class RichOutput(AbstractChecksecOutput):
 
             self.table_elf.add_row(
                 str(filepath),
-                relro_res,
-                canary_res,
                 nx_res,
                 pie_res,
+                canary_res,
+                relro_res,
                 rpath_res,
                 runpath_res,
                 symbols_res,
