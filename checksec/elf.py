@@ -8,7 +8,7 @@ import lief
 
 from .binary import BinarySecurity
 from .errors import ErrorParsingFailed
-from .utils import find_library_full
+from .utils import find_libc
 
 FORTIFIED_END_MARKER = "_chk"
 FORTFIED_START_MARKER = "__"
@@ -56,7 +56,7 @@ class PIEType(Enum):
 class Libc:
     def __init__(self, libpath: Path = None):
         if libpath is None:
-            libpath = Path(find_library_full("c"))
+            libpath = Path(find_libc())
         self.libc = lief.parse(str(libpath))
         if not self.libc:
             raise ErrorParsingFailed(libpath)
