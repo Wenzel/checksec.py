@@ -2,7 +2,7 @@ from collections import namedtuple
 from enum import Enum
 from functools import lru_cache
 from pathlib import Path
-from typing import List
+from typing import List, FrozenSet
 
 import lief
 
@@ -63,20 +63,27 @@ class Libc:
 
     @property
     @lru_cache()
-    def fortified_symbols(self):
+    def fortified_symbols(self) -> FrozenSet[str]:
         """Get the list of libc symbols who have been fortified"""
-        return [s.name for s in self.libc.symbols if s.name.endswith(FORTIFIED_END_MARKER)]
+        return frozenset({s.name for s in self.libc.symbols if s.name.endswith(FORTIFIED_END_MARKER)})
 
     @property
     @lru_cache()
-    def fortified_symbols_base(self):
+    def fortified_symbols_base(self) -> FrozenSet[str]:
         """Get the list of fortified libc symbols, keeping only the function basename"""
-        return [sym[len(FORTFIED_START_MARKER) : -len(FORTIFIED_END_MARKER)] for sym in self.fortified_symbols]
+        return frozenset(
+            {sym[len(FORTFIED_START_MARKER) : -len(FORTIFIED_END_MARKER)] for sym in self.fortified_symbols}
+        )
 
 
 class ELFSecurity(BinarySecurity):
     def __init__(self, elf_path: Path):
         super().__init__(elf_path)
+
+    @property
+    @lru_cache()
+    def set_dyn_syms(self) -> FrozenSet[str]:
+        return frozenset(f.name for f in self.bin.dynamic_symbols)
 
     @property
     def relro(self) -> RelroType:
@@ -157,19 +164,17 @@ class ELFSecurity(BinarySecurity):
 
     @property
     @lru_cache()
-    def fortified(self) -> List[str]:
+    def fortified(self) -> FrozenSet[str]:
         """Get the list of fortified symbols"""
         libc = self.__get_libc
-        return [f.name for f in self.bin.dynamic_symbols if f.name in libc.fortified_symbols]
+        return self.set_dyn_syms ^ libc.fortified_symbols
 
     @property
     @lru_cache()
-    def fortifiable(self) -> List[str]:
+    def fortifiable(self) -> FrozenSet[str]:
         """Get the list of fortifiable symbols (fortified + unfortified)"""
         libc = self.__get_libc
-        res = [f.name for f in self.bin.dynamic_symbols if f.name in libc.fortified_symbols_base]
-        res.extend(self.fortified)
-        return res
+        return self.set_dyn_syms ^ (self.fortified | libc.fortified_symbols_base)
 
     @property
     def checksec_state(self) -> ELFChecksecData:
