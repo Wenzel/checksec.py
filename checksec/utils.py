@@ -52,7 +52,11 @@ def find_libc_ldd():
     if not ld_path:
         raise FileNotFoundError("Failed to locate ld executable")
     # find libc
-    libc_possibles = [dep.path for dep in lddwrap.list_dependencies(Path(ld_path)) if dep.soname.startswith("libc.so")]
+    libc_possibles = [
+        dep.path
+        for dep in lddwrap.list_dependencies(Path(ld_path))
+        if dep.soname is not None and dep.soname.startswith("libc.so")
+    ]
     if not libc_possibles:
         raise FileNotFoundError("Failed to find libc")
     if len(libc_possibles) > 1:
