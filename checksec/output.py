@@ -311,7 +311,7 @@ class JSONOutput(AbstractChecksecOutput):
 
     def add_checksec_result(self, filepath: Path, checksec: Union[ELFChecksecData, PEChecksecData]):
         if isinstance(checksec, ELFChecksecData):
-            self.data[str(filepath)] = {
+            self.data[str(filepath.resolve())] = {
                 "relro": checksec.relro.name,
                 "canary": checksec.canary,
                 "nx": checksec.nx,
@@ -325,7 +325,7 @@ class JSONOutput(AbstractChecksecOutput):
                 "fortify_score": checksec.fortify_score,
             }
         elif isinstance(checksec, PEChecksecData):
-            self.data[str(filepath)] = {
+            self.data[str(filepath.resolve())] = {
                 "nx": checksec.nx,
                 "canary": checksec.canary,
                 "aslr": checksec.aslr,
