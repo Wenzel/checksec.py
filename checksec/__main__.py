@@ -44,6 +44,8 @@ def walk_lief_parsable_list(filepath_list: List[Path], recusive: bool = False) -
 
 
 def checksec_file(filepath: Path) -> Union["ELFChecksecData", "PEChecksecData"]:
+    """Check the security of a given file. Workers main execution"""
+    logging.debug("Worker %s: checking %s", os.getpid(), filepath)
     if not filepath.exists():
         raise FileNotFoundError()
     if is_elf(filepath):
