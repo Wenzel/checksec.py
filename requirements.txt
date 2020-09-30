@@ -2,4 +2,3 @@ lief==0.10.1
 docopt==0.6.2
 rich==7.1.0
 pylddwrap==1.0.1
-pyinstaller==4.0
