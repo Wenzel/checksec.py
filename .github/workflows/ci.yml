@@ -132,7 +132,7 @@ jobs:
         run: python -m pip install pyinstaller==4.0
 
       - name: Add entrypoint to bypass issue with relative imports in PyInstaller
-        run: powershell -Command 'Invoke-WebRequest https://gist.githubusercontent.com/Wenzel/e38d227d94f16e026b3aed03ea6a6661/raw/3dc4f9a414ca5a1467e6d6bc22d649ee63db3963/stub.py -OutFile stub.py'
+        run: powershell -Command 'Invoke-WebRequest https://gist.githubusercontent.com/Wenzel/e38d227d94f16e026b3aed03ea6a6661/raw/383ec56d62c58e444f6c5962ee6940a5c583d341/stub.py -OutFile stub.py'
 
       - name: Build Windows release
         run: |
