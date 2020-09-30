@@ -94,6 +94,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       upload_url: ${{ steps.step_upload_url.outputs.upload_url }}
+      version: ${{ steps.get_version.outputs.version }}
 
     # push on master and tag is 'v*'
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
@@ -109,8 +110,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: $VERSION
-          release_name: $VERSION
+          tag_name: ${{ steps.get_version.outputs.version }}
+          release_name: ${{ steps.get_version.outputs.version }}
 
       - id: step_upload_url
         run: echo "::set-output name=upload_url::${{ steps.create_release.outputs.upload_url }}"
