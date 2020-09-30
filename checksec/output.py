@@ -110,6 +110,15 @@ class RichOutput(AbstractChecksecOutput):
 
         self.process_task_id = None
 
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        # cleanup the Rich progress bars
+        if self.enumerate_bar is not None:
+            self.enumerate_bar.stop()
+        if self.process_bar is not None:
+            self.process_bar.stop()
+        if self.display_res_bar is not None:
+            self.display_res_bar.stop()
+
     def enumerating_tasks_start(self):
         # start progress bar
         self.enumerate_bar.start()
@@ -118,6 +127,7 @@ class RichOutput(AbstractChecksecOutput):
     def enumerating_tasks_stop(self, total: int):
         super().enumerating_tasks_stop(total)
         self.enumerate_bar.stop()
+        self.enumerate_bar = None
 
     def processing_tasks_start(self):
         # init progress bar
@@ -287,6 +297,7 @@ class RichOutput(AbstractChecksecOutput):
 
     def print(self):
         self.process_bar.stop()
+        self.process_bar = None
 
         if self.table_elf.row_count > 0:
             with self.display_res_bar:
@@ -298,6 +309,9 @@ class RichOutput(AbstractChecksecOutput):
                 task_id = self.display_res_bar.add_task("Displaying Results: PE ...", start=False)
                 self.console.print(self.table_pe)
                 self.display_res_bar.remove_task(task_id)
+
+        self.display_res_bar.stop()
+        self.display_res_bar = None
 
 
 class JSONOutput(AbstractChecksecOutput):
