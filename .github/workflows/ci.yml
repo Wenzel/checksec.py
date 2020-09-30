@@ -46,8 +46,6 @@ jobs:
       - name: Lint
         run: nox -s lint
 
-
-
   build:
     needs: lint
     runs-on: ubuntu-latest
@@ -90,12 +88,68 @@ jobs:
       - name: Run smoke test
         run: checksec /usr/lib
 
-  publish:
+  release:
     needs: test
+
     runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.step_upload_url.outputs.upload_url }}
 
     # push on master and tag is 'v*'
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - uses: actions/checkout@v1
+      - name: Get the version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+
+      - name: Create a Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: $VERSION
+          release_name: $VERSION
+
+      - id: step_upload_url
+        run: echo "::set-output name=upload_url::${{ steps.create_release.outputs.upload_url }}"
+
+  release_windows:
+    needs: release
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Set up Python 3.6 🐍
+        uses: actions/setup-python@v1
+        with:
+          python-version: '3.6'
+
+      - name: Install PyInstaller
+        run: python -m pip install pyinstaller==4.0
+
+      - name: Add entrypoint to bypass issue with relative imports in PyInstaller
+        run: powershell -Command 'Invoke-WebRequest https://gist.githubusercontent.com/Wenzel/e38d227d94f16e026b3aed03ea6a6661/raw/3dc4f9a414ca5a1467e6d6bc22d649ee63db3963/stub.py -OutFile stub.py'
+
+      - name: Build Windows release
+        run: pyinstaller --onefile --name checksec stub.py
+
+      - name: Upload a Release Asset
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.release.outputs.upload_url }}
+          asset_path: dist/checksec.exe
+          asset_name: checksec.exe
+          asset_content_type: vnd.microsoft.portable-executable
+
+  publish:
+    needs: release
+    runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v1
 
