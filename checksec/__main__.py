@@ -76,38 +76,51 @@ def main(args):
         output_cls = JSONOutput
 
     with output_cls() as check_output:
-        # we need to consume the iterator once to get the total
-        # for the progress bar
-        check_output.enumerating_tasks_start()
-        count = sum(1 for i in walk_lief_parsable_list(filepath_list, recursive))
-        check_output.enumerating_tasks_stop(count)
-        with ProcessPoolExecutor(max_workers=workers) as pool:
-            check_output.processing_tasks_start()
-            future_to_checksec = {
-                pool.submit(checksec_file, filepath): filepath
-                for filepath in walk_lief_parsable_list(filepath_list, recursive)
-            }
-            for future in as_completed(future_to_checksec):
-                filepath = future_to_checksec[future]
+        try:
+            # we need to consume the iterator once to get the total
+            # for the progress bar
+            check_output.enumerating_tasks_start()
+            count = sum(1 for i in walk_lief_parsable_list(filepath_list, recursive))
+            check_output.enumerating_tasks_stop(count)
+            with ProcessPoolExecutor(max_workers=workers) as pool:
                 try:
-                    data = future.result()
-                except FileNotFoundError:
-                    logging.debug("%s does not exist", filepath)
-                except ErrorParsingFailed:
-                    logging.debug("%s LIEF parsing failed")
-                except NotImplementedError:
-                    logging.debug("%s: Not an ELF/PE. Skipping", filepath)
-                else:
-                    check_output.add_checksec_result(filepath, data)
-                finally:
-                    check_output.checksec_result_end()
-
-        check_output.print()
+                    check_output.processing_tasks_start()
+                    future_to_checksec = {
+                        pool.submit(checksec_file, filepath): filepath
+                        for filepath in walk_lief_parsable_list(filepath_list, recursive)
+                    }
+                    for future in as_completed(future_to_checksec):
+                        filepath = future_to_checksec[future]
+                        try:
+                            data = future.result()
+                        except FileNotFoundError:
+                            logging.debug("%s does not exist", filepath)
+                        except ErrorParsingFailed:
+                            logging.debug("%s LIEF parsing failed")
+                        except NotImplementedError:
+                            logging.debug("%s: Not an ELF/PE. Skipping", filepath)
+                        else:
+                            check_output.add_checksec_result(filepath, data)
+                        finally:
+                            check_output.checksec_result_end()
+                except KeyboardInterrupt:
+                    # remove progress bars before waiting for ProcessPoolExecutor to shutdown
+                    check_output.__exit__(None, None, None)
+                    logging.info("Shutdown Process Pool ...")
+                    pool.shutdown(wait=True)
+                    raise
+        except KeyboardInterrupt:
+            pass
+        else:
+            check_output.print()
 
 
 def entrypoint():
     args = docopt(__doc__)
-    main(args)
+    try:
+        main(args)
+    except KeyboardInterrupt:
+        pass
 
 
 if __name__ == "__main__":
