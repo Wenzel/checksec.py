@@ -188,7 +188,7 @@ class ELFSecurity(BinarySecurity):
                 # all fortified !
                 score = 100
             else:
-                score = (fortified_count * 100) / (fortified_count + fortifiable_count)
+                score = (fortified_count * 100) / fortifiable_count
                 score = round(score)
 
         fortify_source = True if fortified_count != 0 else False
