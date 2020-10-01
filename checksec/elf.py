@@ -167,14 +167,14 @@ class ELFSecurity(BinarySecurity):
     def fortified(self) -> FrozenSet[str]:
         """Get the list of fortified symbols"""
         libc = self.__get_libc
-        return self.set_dyn_syms ^ libc.fortified_symbols
+        return self.set_dyn_syms & libc.fortified_symbols
 
     @property
     @lru_cache()
     def fortifiable(self) -> FrozenSet[str]:
         """Get the list of fortifiable symbols (fortified + unfortified)"""
         libc = self.__get_libc
-        return self.set_dyn_syms ^ (self.fortified | libc.fortified_symbols_base)
+        return self.set_dyn_syms & (self.fortified | libc.fortified_symbols_base)
 
     @property
     def checksec_state(self) -> ELFChecksecData:
@@ -188,7 +188,7 @@ class ELFSecurity(BinarySecurity):
                 # all fortified !
                 score = 100
             else:
-                score = (fortified_count * 100) / (fortified_count + fortifiable_count)
+                score = (fortified_count * 100) / fortifiable_count
                 score = round(score)
 
         fortify_source = True if fortified_count != 0 else False
