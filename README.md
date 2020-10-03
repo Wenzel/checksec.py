@@ -43,6 +43,19 @@ Checksec tool in Python, Rich output, based on LIEF
   </a>
 </p>
 
+## Table of Contents
+
+- [Overview](#overview)
+- [Requirements](#requirements)
+- [Setup](#setup)
+    - [Windows](#windows)
+    - [Linux](#linux)
+- [Usage](#usage)
+- [FAQ](#faq)
+- [References](#references)
+- [License](#license)
+- [Contributors](#contributors)
+
 ## Overview
 
 A simple tool to verify the security properties of your binaries.
