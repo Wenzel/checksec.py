@@ -25,7 +25,7 @@ from .output import JSONOutput, RichOutput
 from .pe import PEChecksecData, PESecurity, is_pe
 
 
-def walk_filepath_list(filepath_list: List[Path], recursive: bool = False):
+def walk_filepath_list(filepath_list: List[Path], recursive: bool = False) -> Iterator[Path]:
     for path in filepath_list:
         if path.is_dir() and not path.is_symlink():
             if recursive:
@@ -34,12 +34,6 @@ def walk_filepath_list(filepath_list: List[Path], recursive: bool = False):
             else:
                 yield from (Path(f) for f in os.scandir(path))
         elif path.is_file():
-            yield path
-
-
-def walk_lief_parsable_list(filepath_list: List[Path], recusive: bool = False) -> Iterator[Path]:
-    for path in walk_filepath_list(filepath_list, recusive):
-        if is_elf(path) or is_pe(path):
             yield path
 
 
@@ -80,14 +74,14 @@ def main(args):
             # we need to consume the iterator once to get the total
             # for the progress bar
             check_output.enumerating_tasks_start()
-            count = sum(1 for i in walk_lief_parsable_list(filepath_list, recursive))
+            count = sum(1 for i in walk_filepath_list(filepath_list, recursive))
             check_output.enumerating_tasks_stop(count)
             with ProcessPoolExecutor(max_workers=workers) as pool:
                 try:
                     check_output.processing_tasks_start()
                     future_to_checksec = {
                         pool.submit(checksec_file, filepath): filepath
-                        for filepath in walk_lief_parsable_list(filepath_list, recursive)
+                        for filepath in walk_filepath_list(filepath_list, recursive)
                     }
                     for future in as_completed(future_to_checksec):
                         filepath = future_to_checksec[future]
