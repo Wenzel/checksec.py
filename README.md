@@ -116,3 +116,7 @@ You can kill the remaining Python workers afterwards.
 - [@apogiatzis](https://github.com/apogiatzis) [Gist checksec.py](https://gist.github.com/apogiatzis/fb617cd118a9882749b5cb167dae0c5d)
 - [checksec.sh](https://github.com/slimm609/checksec.sh)
 - [winchecksec](https://github.com/trailofbits/winchecksec)
+
+## License
+
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
