@@ -11,10 +11,18 @@ Checksec tool in Python, Rich output, based on LIEF
     <img src="https://github.com/Wenzel/checksec.py/workflows/CI/badge.svg" alt="CI badge"/>
   </a>
   <a href="https://pypi.org/project/checksec.py/">
-    <img src="https://img.shields.io/pypi/v/checksec.py?color=green" alt="PyPI package badge"/>
+    <img src="https://img.shields.io/pypi/v/checksec.py?color=blue" alt="PyPI package badge"/>
   </a>
   <a href="https://pypi.org/project/checksec.py/">
     <img src="https://img.shields.io/pypi/pyversions/checksec.py" alt="Python version badge"/>
+  </a>
+</p>
+<p align="center">
+  <a href="">
+    <img src="https://img.shields.io/pypi/dm/checksec.py?color=blue&label=PyPI%20downloads&style=flat-square" />
+  </a>
+  <a href="https://github.com/Wenzel/checksec.py/releases">
+    <img src="https://img.shields.io/github/downloads/Wenzel/blue/total?color=blue&label=Github%20Release%20downloads&style=flat-square" />
   </a>
 </p>
 
