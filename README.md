@@ -120,3 +120,7 @@ You can kill the remaining Python workers afterwards.
 ## License
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
+## Contributors
+
+[![](https://sourcerer.io/fame/Wenzel/Wenzel/checksec.py/images/0)](https://sourcerer.io/fame/Wenzel/Wenzel/checksec.py/links/0)[![](https://sourcerer.io/fame/Wenzel/Wenzel/checksec.py/images/1)](https://sourcerer.io/fame/Wenzel/Wenzel/checksec.py/links/1)[![](https://sourcerer.io/fame/Wenzel/Wenzel/checksec.py/images/2)](https://sourcerer.io/fame/Wenzel/Wenzel/checksec.py/links/2)[![](https://sourcerer.io/fame/Wenzel/Wenzel/checksec.py/images/3)](https://sourcerer.io/fame/Wenzel/Wenzel/checksec.py/links/3)[![](https://sourcerer.io/fame/Wenzel/Wenzel/checksec.py/images/4)](https://sourcerer.io/fame/Wenzel/Wenzel/checksec.py/links/4)[![](https://sourcerer.io/fame/Wenzel/Wenzel/checksec.py/images/5)](https://sourcerer.io/fame/Wenzel/Wenzel/checksec.py/links/5)[![](https://sourcerer.io/fame/Wenzel/Wenzel/checksec.py/images/6)](https://sourcerer.io/fame/Wenzel/Wenzel/checksec.py/links/6)[![](https://sourcerer.io/fame/Wenzel/Wenzel/checksec.py/images/7)](https://sourcerer.io/fame/Wenzel/Wenzel/checksec.py/links/7)
