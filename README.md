@@ -92,10 +92,14 @@ You find the `checksec.exe` on the latest Github releases:
 
 ### Linux
 
+<a href="https://pypi.org/project/checksec.py/">
+  <img src="https://img.shields.io/pypi/v/checksec.py?color=blue&label=PyPI%20package&style=for-the-badge" />
+</a>
+
 ~~~
 virtualenv -p python3 venv
 source venv/bin/activate
-(venv) pip install .
+(venv) pip install checksec.py
 ~~~
 
 ## Usage
