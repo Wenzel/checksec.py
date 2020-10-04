@@ -15,11 +15,11 @@ PEChecksecData = namedtuple(
         "aslr",
         "dynamic_base",
         "high_entropy_va",
-        "isolation",
         "seh",
         "safe_seh",
-        "guard_cf",
         "force_integrity",
+        "guard_cf",
+        "isolation",
     ],
 )
 
@@ -116,15 +116,15 @@ class PESecurity(BinarySecurity):
     @property
     def checksec_state(self) -> PEChecksecData:
         return PEChecksecData(
-            self.bin.header.machine,
-            self.has_nx,
-            self.has_canary,
-            self.is_aslr,
-            self.has_dynamic_base,
-            self.has_high_entropy_va,
-            self.has_seh,
-            self.has_safe_seh,
-            self.has_force_integrity,
-            self.has_guard_cf,
-            self.has_isolation,
+            machine=self.bin.header.machine,
+            nx=self.has_nx,
+            canary=self.has_canary,
+            aslr=self.is_aslr,
+            dynamic_base=self.has_dynamic_base,
+            high_entropy_va=self.has_high_entropy_va,
+            seh=self.has_seh,
+            safe_seh=self.has_safe_seh,
+            force_integrity=self.has_force_integrity,
+            guard_cf=self.has_guard_cf,
+            isolation=self.has_isolation,
         )
