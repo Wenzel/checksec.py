@@ -193,15 +193,15 @@ class ELFSecurity(BinarySecurity):
 
         fortify_source = True if fortified_count != 0 else False
         return ELFChecksecData(
-            self.relro,
-            self.has_canary,
-            self.has_nx,
-            self.pie,
-            self.has_rpath,
-            self.has_runpath,
-            not self.is_stripped,
-            fortify_source,
-            fortified_count,
-            fortifiable_count,
-            score,
+            relro=self.relro,
+            canary=self.has_canary,
+            nx=self.has_nx,
+            pie=self.pie,
+            rpath=self.has_rpath,
+            runpath=self.has_runpath,
+            symbols=not self.is_stripped,
+            fortify_source=fortify_source,
+            fortified=fortified_count,
+            fortifiable=fortifiable_count,
+            fortify_score=score,
         )
