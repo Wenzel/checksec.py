@@ -345,6 +345,7 @@ class JSONOutput(AbstractChecksecOutput):
                 "seh": checksec.seh,
                 "safe_seh": checksec.safe_seh,
                 "guard_cf": checksec.guard_cf,
+                "force_integrity": checksec.force_integrity
             }
         else:
             raise NotImplementedError
