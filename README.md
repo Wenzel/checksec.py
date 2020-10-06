@@ -114,49 +114,51 @@ Check `--help` for more options (_JSON output_, _recursive walk_, _workers count
 
 1️⃣ What's the difference between [`checksec.py`](https://github.com/Wenzel/checksec.py) and [`checksec.sh`](https://github.com/slimm609/checksec.sh) ?
 
-|                    | checksec.py | checksec.sh |
-|--------------------|:-----------:|:-----------:|
-| Scan file          |      ✔      |      ✔      |
-| Scan directory     |      ✔      |      ✔      |
-| Scan process       |      ❌       |     ✔       |
-| Scan process libs  |      ❌       |     ✔       |
-| Scan kernel config |      ❌       |     ✔       |
-| Output Cli         |      ✔      |      ✔      |
-| Output JSON        |      ✔      |      ✔      |
-| Output CSV         |      ❌       |     ✔       |
-| Output XML         |      ❌       |     ✔       |
-| ELF: Relro         |     ✔       |     ✔       |
-| ELF: Canary        |      ✔      |      ✔      |
-| ELF: NX            |      ✔      |      ✔      |
-| ELF: PIE           |      ✔      |      ✔      |
-| ELF: RPATH         |      ✔      |      ✔      |
-| ELF: RUNPATH       |      ✔      |      ✔      |
-| ELF: Symbols       |      ✔      |      ✔      |
-| ELF: Fortify       |      ✔      |      ✔      |
-| ELF: Fortified     |      ✔      |      ✔      |
-| ELF: Fortifable    |      ✔      |      ✔      |
-| ELF: Fortify Score |      ✔      |      ❌       |
+|                            | checksec.py | checksec.sh |
+|----------------------------|:-----------:|:-----------:|
+| Scan file                  |      ✔      |      ✔      |
+| Scan directory             |      ✔      |      ✔      |
+| Scan directory recursively |      ✔      |      ❌     |
+| Scan process               |      ❌     |     ✔       |
+| Scan process libs          |      ❌     |     ✔       |
+| Scan kernel config         |      ❌     |     ✔       |
+| Output Cli                 |      ✔      |      ✔      |
+| Output JSON                |      ✔      |      ✔      |
+| Output CSV                 |      ❌     |     ✔       |
+| Output XML                 |      ❌     |     ✔       |
+| ELF: Relro                 |     ✔       |     ✔       |
+| ELF: Canary                |      ✔      |      ✔      |
+| ELF: NX                    |      ✔      |      ✔      |
+| ELF: PIE                   |      ✔      |      ✔      |
+| ELF: RPATH                 |      ✔      |      ✔      |
+| ELF: RUNPATH               |      ✔      |      ✔      |
+| ELF: Symbols               |      ✔      |      ✔      |
+| ELF: Fortify               |      ✔      |      ✔      |
+| ELF: Fortified             |      ✔      |      ✔      |
+| ELF: Fortifable            |      ✔      |      ✔      |
+| ELF: Fortify Score         |      ✔      |      ❌       |
 
 
 2️⃣ What's the difference between [`checksec.py`](https://github.com/Wenzel/checksec.py) and [`winchecksec`](https://github.com/trailofbits/winchecksec) ?
 
-|                          | checksec.py | winchecksec |
-|--------------------------|:-----------:|:-----------:|
-| Scan file                |     ✔        |     ✔️        |
-| Scan directory           |     ✔        |     ❌        |
-| Output CLI               |     ✔        |    ✔         |
-| Output JSON              |     ✔        |    ✔         |
-| PE: ASLR - DYNAMIC_BASE  |     ✔        |    ✔         |
-| PE: ASLR - HIGHENTROPYVA |     ✔        |    ✔         |
-| PE: INTEGRITYCHECK       |     ✔        |    ✔         |
-| PE: Authenticode signed  |     ❌        |    ✔         |
-| PE: DEP                  |     ✔        |   ✔          |
-| PE: Manifest Isolation   |     ✔        |    ✔         |
-| PE: SEH                  |     ✔        |    ✔         |
-| PE: SafeSEH              |     ✔        |    ✔         |
-| PE: Control Flow Guard   |     ✔        |    ✔         |
-| PE: Return Flow Guard    |     ❌        |      ✔       |
-| PE: Stack Cookie         |     ✔        |      ✔       |
+|                             | checksec.py | winchecksec |
+|-----------------------------|:-----------:|:-----------:|
+| Scan file                   |     ✔       |     ✔       |
+| Scan directory              |     ✔       |     ❌      |
+| Scan directory recursively  |     ✔       |     ❌      |
+| Output CLI                  |     ✔       |    ✔        |
+| Output JSON                 |     ✔       |    ✔        |
+| PE: ASLR - DYNAMIC_BASE     |     ✔       |    ✔        |
+| PE: ASLR - HIGHENTROPYVA    |     ✔       |    ✔        |
+| PE: INTEGRITYCHECK          |     ✔       |    ✔        |
+| PE: Authenticode signed     |     ❌      |    ✔        |
+| PE: DEP                     |     ✔       |   ✔         |
+| PE: Manifest Isolation      |     ✔       |    ✔        |
+| PE: SEH                     |     ✔       |    ✔        |
+| PE: SafeSEH                 |     ✔       |    ✔        |
+| PE: Control Flow Guard      |     ✔       |    ✔        |
+| PE: Return Flow Guard       |     ❌      |      ✔      |
+| PE: Stack Cookie            |     ✔       |      ✔      |
 
 3️⃣ `checksec` is slow on some huge binaries ! What's happening ?!
 
