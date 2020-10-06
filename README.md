@@ -112,33 +112,53 @@ Check `--help` for more options (_JSON output_, _recursive walk_, _workers count
 
 ## FAQ
 
-1. What's the difference between [`checksec.py`](https://github.com/Wenzel/checksec.py) and [`checksec.sh`](https://github.com/slimm609/checksec.sh) ?
+1️⃣ What's the difference between [`checksec.py`](https://github.com/Wenzel/checksec.py) and [`checksec.sh`](https://github.com/slimm609/checksec.sh) ?
 
 |                    | checksec.py | checksec.sh |
 |--------------------|:-----------:|:-----------:|
-| Scan file          |      ✅      |      ✅      |
-| Scan directory     |      ✅      |      ✅      |
-| Scan process       |      ❌       |     ✅       |
-| Scan process libs  |      ❌       |     ✅       |
-| Scan kernel config |      ❌       |     ✅       |
-| Output Cli         |      ✅      |      ✅      |
-| Output JSON        |      ✅      |      ✅      |
-| Output CSV         |      ❌       |     ✅       |
-| Output XML         |      ❌       |     ✅       |
-| ELF: Relro         |     ✅       |     ✅       |
-| ELF: Canary        |      ✅      |      ✅      |
-| ELF: NX            |      ✅      |      ✅      |
-| ELF: PIE           |      ✅      |      ✅      |
-| ELF: RPATH         |      ✅      |      ✅      |
-| ELF: RUNPATH       |      ✅      |      ✅      |
-| ELF: Symbols       |      ✅      |      ✅      |
-| ELF: Fortify       |      ✅      |      ✅      |
-| ELF: Fortified     |      ✅      |      ✅      |
-| ELF: Fortifable    |      ✅      |      ✅      |
-| ELF: Fortify Score |      ✅      |      ❌       |
+| Scan file          |      ✔      |      ✔      |
+| Scan directory     |      ✔      |      ✔      |
+| Scan process       |      ❌       |     ✔       |
+| Scan process libs  |      ❌       |     ✔       |
+| Scan kernel config |      ❌       |     ✔       |
+| Output Cli         |      ✔      |      ✔      |
+| Output JSON        |      ✔      |      ✔      |
+| Output CSV         |      ❌       |     ✔       |
+| Output XML         |      ❌       |     ✔       |
+| ELF: Relro         |     ✔       |     ✔       |
+| ELF: Canary        |      ✔      |      ✔      |
+| ELF: NX            |      ✔      |      ✔      |
+| ELF: PIE           |      ✔      |      ✔      |
+| ELF: RPATH         |      ✔      |      ✔      |
+| ELF: RUNPATH       |      ✔      |      ✔      |
+| ELF: Symbols       |      ✔      |      ✔      |
+| ELF: Fortify       |      ✔      |      ✔      |
+| ELF: Fortified     |      ✔      |      ✔      |
+| ELF: Fortifable    |      ✔      |      ✔      |
+| ELF: Fortify Score |      ✔      |      ❌       |
 
 
-2. `checksec` is slow on some huge binaries ! What's happening ?!
+2️⃣ What's the difference between [`checksec.py`](https://github.com/Wenzel/checksec.py) and [`winchecksec`](https://github.com/trailofbits/winchecksec) ?
+
+|                          | checksec.py | winchecksec |
+|--------------------------|:-----------:|:-----------:|
+| Scan file                |     ✔        |     ✔️        |
+| Scan directory           |     ✔        |     ❌        |
+| Output CLI               |     ✔        |    ✔         |
+| Output JSON              |     ✔        |    ✔         |
+| PE: ASLR - DYNAMIC_BASE  |     ✔        |    ✔         |
+| PE: ASLR - HIGHENTROPYVA |     ✔        |    ✔         |
+| PE: INTEGRITYCHECK       |     ✔        |    ✔         |
+| PE: Authenticode signed  |     ❌        |    ✔         |
+| PE: DEP                  |     ✔        |   ✔          |
+| PE: Manifest Isolation   |     ✔        |    ✔         |
+| PE: SEH                  |     ✔        |    ✔         |
+| PE: SafeSEH              |     ✔        |    ✔         |
+| PE: Control Flow Guard   |     ✔        |    ✔         |
+| PE: Return Flow Guard    |     ❌        |      ✔       |
+| PE: Stack Cookie         |     ✔        |      ✔       |
+
+3️⃣ `checksec` is slow on some huge binaries ! What's happening ?!
 
 `checksec.py` relies on the [`LIEF`](https://github.com/lief-project/LIEF) library to parse `PE/ELF/MachO` formats.
 
@@ -146,7 +166,7 @@ Check `--help` for more options (_JSON output_, _recursive walk_, _workers count
 
 ➡️Retrieving symbols can be slow (ex: `pandoc`, `118M`, `+300 000` symbols, `+2m 20sec`). See this [issue](https://github.com/Wenzel/checksec.py/issues/52)
 
-3. I sent a `CTRL-C` to cancel `checksec.py` processing, the app doesn't want to quit
+4️⃣ I sent a `CTRL-C` to cancel `checksec.py` processing, the app doesn't want to quit
 
 `checksec.py` is working with multiple process workers to parallelize its execution and binary processing.
 When a `CRTL-C` is received, `checksec.py` will [wait](https://docs.python.org/3/library/concurrent.futures.html#concurrent.futures.Executor.shutdown) for them to stop.
