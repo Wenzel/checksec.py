@@ -164,7 +164,7 @@ Check `--help` for more options (_JSON output_, _recursive walk_, _workers count
 
 `checksec.py` relies on the [`LIEF`](https://github.com/lief-project/LIEF) library to parse `PE/ELF/MachO` formats.
 
-➡️The library doesn't offer at this point _on-demand_ parsing, so it will parse and fetch unecessary data.
+➡️The library doesn't offer at this point _on-demand_ parsing, so it will parse and fetch unnecessary data.
 
 ➡️Retrieving symbols can be slow (ex: `pandoc`, `118M`, `+300 000` symbols, `+2m 20sec`). See this [issue](https://github.com/Wenzel/checksec.py/issues/52)
 
