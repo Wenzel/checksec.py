@@ -1,8 +1,9 @@
 from collections import namedtuple
 from pathlib import Path
+from typing import Set
 
 import lief
-from lief.PE import DLL_CHARACTERISTICS, HEADER_CHARACTERISTICS, MACHINE_TYPES
+from lief.PE import DLL_CHARACTERISTICS, HEADER_CHARACTERISTICS, MACHINE_TYPES, GUARD_CF_FLAGS
 
 from .binary import BinarySecurity
 
@@ -19,6 +20,7 @@ PEChecksecData = namedtuple(
         "safe_seh",
         "force_integrity",
         "guard_cf",
+        "rfg",
         "isolation",
     ],
 )
@@ -104,7 +106,24 @@ class PESecurity(BinarySecurity):
 
     # code integrity: November 2015 (Windows 10 1511)
 
-    # Return Flow Guard: October 2016 (Windows 10 Redstone 2)
+    @property
+    def has_return_flow_guard(self) -> bool:
+        """Whether Return Flow Guard is enabled"""
+        # Return Flow Guard: October 2016 (Windows 10 Redstone 2)
+        # winchecksec:
+        # https://github.com/trailofbits/winchecksec/blob/v2.0.0/checksec.cpp#L262
+        # Tencent lab article
+        # https://xlab.tencent.com/en/2016/11/02/return-flow-guard/
+        try:
+            guard_flags: Set[GUARD_CF_FLAGS] = self.bin.load_configuration.guard_cf_flags_list
+            return (
+                True
+                if GUARD_CF_FLAGS.GRF_INSTRUMENTED in guard_flags
+                and (GUARD_CF_FLAGS.GRF_ENABLE in guard_flags or GUARD_CF_FLAGS.GRF_STRICT in guard_flags)
+                else False
+            )
+        except (lief.not_found, AttributeError):
+            return False
 
     @property
     def has_isolation(self) -> bool:
@@ -126,5 +145,6 @@ class PESecurity(BinarySecurity):
             safe_seh=self.has_safe_seh,
             force_integrity=self.has_force_integrity,
             guard_cf=self.has_guard_cf,
+            rfg=self.has_return_flow_guard,
             isolation=self.has_isolation,
         )
