@@ -116,6 +116,7 @@ Check `--help` for more options (_JSON output_, _recursive walk_, _workers count
 
 |                            | checksec.py | checksec.sh |
 |----------------------------|:-----------:|:-----------:|
+| Distributed workload        |     ✔       |     ❌       |
 | Scan file                  |      ✔      |      ✔      |
 | Scan directory             |      ✔      |      ✔      |
 | Scan directory recursively |      ✔      |      ❌     |
@@ -143,6 +144,7 @@ Check `--help` for more options (_JSON output_, _recursive walk_, _workers count
 
 |                             | checksec.py | winchecksec |
 |-----------------------------|:-----------:|:-----------:|
+| Distributed workload        |     ✔       |     ❌       |
 | Scan file                   |     ✔       |     ✔       |
 | Scan directory              |     ✔       |     ❌      |
 | Scan directory recursively  |     ✔       |     ❌      |
