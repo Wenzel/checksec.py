@@ -88,6 +88,32 @@ jobs:
       - name: Run smoke test
         run: checksec /usr/lib
 
+  performance:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Set up Python 3.6 🐍
+        uses: actions/setup-python@v1
+        with:
+          python-version: '3.6'
+
+      - name: Install package 📦
+        run: python -m pip install .
+
+      - name: install checksec.sh
+        run: |
+          sudo wget 'https://raw.githubusercontent.com/slimm609/checksec.sh/master/checksec' -O /usr/local/bin/checksec.sh
+          sudo chmod +x /usr/local/bin/checksec.sh
+
+      - name: checksec.sh /usr/lib
+        run: find /usr/lib -type d -exec checksec.sh --dir="{}" --output=json \;
+
+      - name: checksec.py /usr/lib
+        run: checksec /usr/lib -r -j
+
   release:
     needs: test
 
