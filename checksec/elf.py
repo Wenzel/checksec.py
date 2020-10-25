@@ -2,7 +2,7 @@ from collections import namedtuple
 from enum import Enum
 from functools import lru_cache
 from pathlib import Path
-from typing import List, FrozenSet
+from typing import FrozenSet, List, Optional
 
 import lief
 
@@ -31,10 +31,34 @@ ELFChecksecData = namedtuple(
 )
 
 
-def set_libc(libc_path: Path):
-    """Sets a new libc path to be used by future calls on ELFSecurity fortified functions"""
-    global LIBC_OBJ
-    LIBC_OBJ = Libc(libc_path)
+__LIBC_OBJ = {}
+
+
+class LibcNotFoundError(Exception):
+    pass
+
+
+def get_libc(libc_path: Optional[Path] = None) -> Optional["Libc"]:
+    """This function initializes a Libc using LIEF
+
+    :param libc_path: an optional Path to the libc library. if None, the Libc will be auto detected using various
+    methods
+    :return a Libc object
+    """
+    # Note: this weird function is designed as a poor singleton lru_cache wasn't possible, since get_libc(path) and
+    # get_libc(None) should return the same data once the first call has been made we need to maintain a global
+    # object as we can't pass the Libc object to ELFSecurity, as LIEF's objects are not picklable
+    global __LIBC_OBJ
+    try:
+        __LIBC_OBJ["libc"]
+    except KeyError:
+        try:
+            libc = Libc(libc_path)
+        except (LibcNotFoundError, ErrorParsingFailed):
+            __LIBC_OBJ["libc"] = None
+        else:
+            __LIBC_OBJ["libc"] = libc
+    return __LIBC_OBJ["libc"]
 
 
 def is_elf(filepath: Path) -> bool:
@@ -57,6 +81,8 @@ class Libc:
     def __init__(self, libpath: Path = None):
         if libpath is None:
             libpath = Path(find_libc())
+            if not libpath:
+                raise LibcNotFoundError
         self.libc = lief.parse(str(libpath))
         if not self.libc:
             raise ErrorParsingFailed(libpath)
@@ -79,6 +105,7 @@ class Libc:
 class ELFSecurity(BinarySecurity):
     def __init__(self, elf_path: Path):
         super().__init__(elf_path)
+        self._libc = get_libc()
 
     @property
     @lru_cache()
@@ -156,42 +183,41 @@ class ELFSecurity(BinarySecurity):
 
     @property
     @lru_cache()
-    def __get_libc(self) -> Libc:
-        global LIBC_OBJ
-        if LIBC_OBJ is None:
-            LIBC_OBJ = Libc()
-        return LIBC_OBJ
-
-    @property
-    @lru_cache()
-    def fortified(self) -> FrozenSet[str]:
+    def fortified(self) -> Optional[FrozenSet[str]]:
         """Get the list of fortified symbols"""
-        libc = self.__get_libc
-        return self.set_dyn_syms & libc.fortified_symbols
+        if not self._libc:
+            return None
+        return self.set_dyn_syms & self._libc.fortified_symbols
 
     @property
     @lru_cache()
-    def fortifiable(self) -> FrozenSet[str]:
+    def fortifiable(self) -> Optional[FrozenSet[str]]:
         """Get the list of fortifiable symbols (fortified + unfortified)"""
-        libc = self.__get_libc
-        return self.set_dyn_syms & (self.fortified | libc.fortified_symbols_base)
+        if not self._libc:
+            return None
+        return self.set_dyn_syms & (self.fortified | self._libc.fortified_symbols_base)
 
     @property
     def checksec_state(self) -> ELFChecksecData:
-        fortified_count = len(self.fortified)
-        fortifiable_count = len(self.fortifiable)
-        if not self.is_fortified:
-            score = 0
-        else:
-            # fortified
-            if fortified_count == 0:
-                # all fortified !
-                score = 100
+        fortify_source = None
+        fortified_count = None
+        fortifiable_count = None
+        score = None
+        if self._libc:
+            fortified_count = len(self.fortified)
+            fortifiable_count = len(self.fortifiable)
+            if not self.is_fortified:
+                score = 0
             else:
-                score = (fortified_count * 100) / fortifiable_count
-                score = round(score)
+                # fortified
+                if fortified_count == 0:
+                    # all fortified !
+                    score = 100
+                else:
+                    score = (fortified_count * 100) / fortifiable_count
+                    score = round(score)
 
-        fortify_source = True if fortified_count != 0 else False
+            fortify_source = True if fortified_count != 0 else False
         return ELFChecksecData(
             relro=self.relro,
             canary=self.has_canary,

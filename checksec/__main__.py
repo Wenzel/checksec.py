@@ -7,19 +7,20 @@ Options:
     -r --recursive                  Walk directories recursively
     -w WORKERS --workers=WORKERS    Specify the number of process pool workers [default: 4]
     -j --json                       Display results as JSON
+    -s LIBC --set-libc=LIBC         Specify LIBC library to use to check for fortify scores (ELF)
     -d --debug                      Enable debug output
     -h --help                       Display this message
 """
 
-import os
 import logging
+import os
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
-from typing import List, Union, Iterator
+from typing import Iterator, List, Union
 
 from docopt import docopt
 
-from .elf import ELFChecksecData, ELFSecurity, is_elf
+from .elf import ELFChecksecData, ELFSecurity, get_libc, is_elf
 from .errors import ErrorParsingFailed
 from .output import JSONOutput, RichOutput
 from .pe import PEChecksecData, PESecurity, is_pe
@@ -57,6 +58,7 @@ def main(args):
     workers = int(args["--workers"])
     json = args["--json"]
     recursive = args["--recursive"]
+    libc_path = args["--set-libc"]
 
     # logging
     formatter = "%(asctime)s %(levelname)s:%(name)s:%(message)s"
@@ -64,12 +66,28 @@ def main(args):
     if debug:
         log_lvl = logging.DEBUG
     logging.basicConfig(level=log_lvl, format=formatter)
+
+    libc_detected = False
+    # init Libc LIEF object
+    # we can't pass this object to ELFSecurity class as it isn't picklable
+    libc = get_libc(libc_path)
+    if not libc:
+        # libc initialization failed
+        if libc_path:
+            # a libc path was specified, report error
+            logging.critical("Could not find Libc at %s", libc_path)
+            return 1
+        # TODO: display warning
+    else:
+        print(len(libc.fortified_symbols))
+        libc_detected = True
+
     # default output: Rich console
     output_cls = RichOutput
     if json:
         output_cls = JSONOutput
 
-    with output_cls() as check_output:
+    with output_cls(libc_detected) as check_output:
         try:
             # we need to consume the iterator once to get the total
             # for the progress bar

@@ -1,13 +1,12 @@
+import logging
 import os
+import re
+import shutil
 import struct
 import subprocess
-import shutil
-import re
-import logging
 from pathlib import Path
 
 import lddwrap
-
 
 LIBC_PATH_POSSIBILITIES = [
     "/lib/libc.so.6",
