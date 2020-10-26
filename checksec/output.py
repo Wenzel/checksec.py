@@ -1,7 +1,7 @@
 import json
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Union
+from typing import List, Union
 
 from lief.PE import MACHINE_TYPES
 from rich.console import Console
@@ -13,7 +13,8 @@ from checksec.pe import PEChecksecData
 
 
 class AbstractChecksecOutput(ABC):
-    def __init__(self):
+    def __init__(self, libc_detected: bool = False):
+        self._libc_detected = libc_detected
         self.total = None
 
     def __enter__(self):
@@ -50,9 +51,9 @@ class AbstractChecksecOutput(ABC):
 
 
 class RichOutput(AbstractChecksecOutput):
-    def __init__(self):
+    def __init__(self, libc_detected: bool = False):
         """Init Rich Console and Table"""
-        super().__init__()
+        super().__init__(libc_detected)
         # init ELF table
         self.table_elf = Table(title="Checksec Results: ELF", expand=True)
         self.table_elf.add_column("File", justify="left", header_style="")
@@ -63,10 +64,11 @@ class RichOutput(AbstractChecksecOutput):
         self.table_elf.add_column("RPATH", justify="center")
         self.table_elf.add_column("RUNPATH", justify="center")
         self.table_elf.add_column("Symbols", justify="center")
-        self.table_elf.add_column("FORTIFY", justify="center")
-        self.table_elf.add_column("Fortified", justify="center")
-        self.table_elf.add_column("Fortifiable", justify="center")
-        self.table_elf.add_column("Fortify Score", justify="center")
+        if self._libc_detected:
+            self.table_elf.add_column("FORTIFY", justify="center")
+            self.table_elf.add_column("Fortified", justify="center")
+            self.table_elf.add_column("Fortifiable", justify="center")
+            self.table_elf.add_column("Fortify Score", justify="center")
 
         # init PE table
         self.table_pe = Table(title="Checksec Results: PE", expand=True)
@@ -136,11 +138,13 @@ class RichOutput(AbstractChecksecOutput):
 
     def add_checksec_result(self, filepath: Path, checksec: Union[ELFChecksecData, PEChecksecData]):
         if isinstance(checksec, ELFChecksecData):
+            row_res: List[str] = []
             # display results
             if not checksec.nx:
                 nx_res = "[red]No"
             else:
                 nx_res = "[green]Yes"
+            row_res.append(nx_res)
 
             pie = checksec.pie
             if pie == PIEType.No:
@@ -149,11 +153,13 @@ class RichOutput(AbstractChecksecOutput):
                 pie_res = f"[yellow]{pie.name}"
             else:
                 pie_res = "[green]Yes"
+            row_res.append(pie_res)
 
             if not checksec.canary:
                 canary_res = "[red]No"
             else:
                 canary_res = "[green]Yes"
+            row_res.append(canary_res)
 
             relro = checksec.relro
             if relro == RelroType.No:
@@ -162,60 +168,57 @@ class RichOutput(AbstractChecksecOutput):
                 relro_res = f"[yellow]{relro.name}"
             else:
                 relro_res = f"[green]{relro.name}"
+            row_res.append(relro_res)
 
             if checksec.rpath:
                 rpath_res = "[red]Yes"
             else:
                 rpath_res = "[green]No"
+            row_res.append(rpath_res)
 
             if checksec.runpath:
                 runpath_res = "[red]Yes"
             else:
                 runpath_res = "[green]No"
+            row_res.append(runpath_res)
 
             if checksec.symbols:
                 symbols_res = "[red]Yes"
             else:
                 symbols_res = "[green]No"
+            row_res.append(symbols_res)
 
-            fortified_count = checksec.fortified
-            if checksec.fortify_source:
-                fortify_source_res = "[green]Yes"
-            else:
-                fortify_source_res = "[red]No"
+            # fortify results depend on having a Libc available
+            if self._libc_detected:
+                fortified_count = checksec.fortified
+                if checksec.fortify_source:
+                    fortify_source_res = "[green]Yes"
+                else:
+                    fortify_source_res = "[red]No"
+                row_res.append(fortify_source_res)
 
-            if fortified_count == 0:
-                fortified_res = "[red]No"
-            else:
-                fortified_res = f"[green]{fortified_count}"
+                if fortified_count == 0:
+                    fortified_res = "[red]No"
+                else:
+                    fortified_res = f"[green]{fortified_count}"
+                row_res.append(fortified_res)
 
-            fortifiable_count = checksec.fortifiable
-            if fortified_count == 0:
-                fortifiable_res = "[red]No"
-            else:
-                fortifiable_res = f"[green]{fortifiable_count}"
+                fortifiable_count = checksec.fortifiable
+                if fortified_count == 0:
+                    fortifiable_res = "[red]No"
+                else:
+                    fortifiable_res = f"[green]{fortifiable_count}"
+                row_res.append(fortifiable_res)
 
-            if checksec.fortify_score == 0:
-                fortified_score_res = f"[red]{checksec.fortify_score}"
-            elif checksec.fortify_score == 100:
-                fortified_score_res = f"[green]{checksec.fortify_score}"
-            else:
-                fortified_score_res = f"[yellow]{checksec.fortify_score}"
+                if checksec.fortify_score == 0:
+                    fortified_score_res = f"[red]{checksec.fortify_score}"
+                elif checksec.fortify_score == 100:
+                    fortified_score_res = f"[green]{checksec.fortify_score}"
+                else:
+                    fortified_score_res = f"[yellow]{checksec.fortify_score}"
+                row_res.append(fortified_score_res)
 
-            self.table_elf.add_row(
-                str(filepath),
-                nx_res,
-                pie_res,
-                canary_res,
-                relro_res,
-                rpath_res,
-                runpath_res,
-                symbols_res,
-                fortify_source_res,
-                fortified_res,
-                fortifiable_res,
-                fortified_score_res,
-            )
+            self.table_elf.add_row(str(filepath), *row_res)
         elif isinstance(checksec, PEChecksecData):
             if not checksec.nx:
                 nx_res = "[red]No"
@@ -315,8 +318,8 @@ class RichOutput(AbstractChecksecOutput):
 
 
 class JSONOutput(AbstractChecksecOutput):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, libc_detected: bool = False):
+        super().__init__(libc_detected)
         self.data = {}
 
     def add_checksec_result(self, filepath: Path, checksec: Union[ELFChecksecData, PEChecksecData]):
@@ -345,7 +348,7 @@ class JSONOutput(AbstractChecksecOutput):
                 "seh": checksec.seh,
                 "safe_seh": checksec.safe_seh,
                 "guard_cf": checksec.guard_cf,
-                "force_integrity": checksec.force_integrity
+                "force_integrity": checksec.force_integrity,
             }
         else:
             raise NotImplementedError
