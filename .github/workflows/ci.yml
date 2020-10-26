@@ -64,6 +64,35 @@ jobs:
           python setup.py sdist
           python setup.py bdist_wheel
 
+  build_windows:
+    needs: lint
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Set up Python 3.6 🐍
+        uses: actions/setup-python@v1
+        with:
+          python-version: '3.6'
+
+      - name: Install PyInstaller
+        run: python -m pip install pyinstaller==4.0
+
+      - name: Add entrypoint to bypass issue with relative imports in PyInstaller
+        run: powershell -Command 'Invoke-WebRequest https://gist.githubusercontent.com/Wenzel/e38d227d94f16e026b3aed03ea6a6661/raw/383ec56d62c58e444f6c5962ee6940a5c583d341/stub.py -OutFile stub.py'
+
+      - name: Build Windows release
+        run: |
+          python -m pip install -r requirements.txt
+          pyinstaller --onefile --name checksec stub.py
+
+      - name: Upload Windows release artefact
+        uses: actions/upload-artifact@v2
+        with:
+          name: checksec.exe
+          path: dist/checksec.exe
+
   test:
     needs: build
     runs-on: ubuntu-latest
@@ -117,27 +146,19 @@ jobs:
         run: echo "::set-output name=upload_url::${{ steps.create_release.outputs.upload_url }}"
 
   release_windows:
-    needs: release
+    needs: [build_windows, release]
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v1
+      # the deploy action below depends on a checkout of the repo
+      # otherwise it fails trying to remote the 'origin' remote
+      # https://github.com/JamesIves/github-pages-deploy-action/issues/335
+      - uses: actions/checkout@v2
 
-      - name: Set up Python 3.6 🐍
-        uses: actions/setup-python@v1
+      # download artifacts
+      - uses: actions/download-artifact@v2
         with:
-          python-version: '3.6'
-
-      - name: Install PyInstaller
-        run: python -m pip install pyinstaller==4.0
-
-      - name: Add entrypoint to bypass issue with relative imports in PyInstaller
-        run: powershell -Command 'Invoke-WebRequest https://gist.githubusercontent.com/Wenzel/e38d227d94f16e026b3aed03ea6a6661/raw/383ec56d62c58e444f6c5962ee6940a5c583d341/stub.py -OutFile stub.py'
-
-      - name: Build Windows release
-        run: |
-          python -m pip install -r requirements.txt
-          pyinstaller --onefile --name checksec stub.py
+          name: checksec.exe
 
       - name: Upload a Release Asset
         uses: actions/upload-release-asset@v1.0.2
@@ -145,7 +166,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.release.outputs.upload_url }}
-          asset_path: dist/checksec.exe
+          asset_path: checksec.exe
           asset_name: checksec.exe
           asset_content_type: vnd.microsoft.portable-executable
 
