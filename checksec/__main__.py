@@ -77,9 +77,8 @@ def main(args):
             # a libc path was specified, report error
             logging.critical("Could not find Libc at %s", libc_path)
             return 1
-        # TODO: display warning
+        logging.debug("Could not locate libc. Skipping fortify tests for ELF.")
     else:
-        print(len(libc.fortified_symbols))
         libc_detected = True
 
     # default output: Rich console
