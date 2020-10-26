@@ -93,6 +93,10 @@ jobs:
           name: checksec.exe
           path: dist/checksec.exe
 
+      # TODO: can't test rich output: UnicodeEncodeError: 'charmap' codec can't encode characters in position 0-78: character maps to <undefined>
+      - name: Smoke test
+        run: ./dist/checksec.exe C:\Windows --json
+
   test:
     needs: build
     runs-on: ubuntu-latest
