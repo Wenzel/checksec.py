@@ -8,6 +8,11 @@ from pathlib import Path
 
 import lddwrap
 
+
+class LibcNotFoundError(Exception):
+    pass
+
+
 LIBC_PATH_POSSIBILITIES = [
     "/lib/libc.so.6",
     "/lib/libc.so.7",
@@ -26,19 +31,21 @@ def find_libc():
     libc_path = None
     try:
         libc_path = find_library_full("c")
-    except FileNotFoundError:
+    except (FileNotFoundError, AttributeError, RuntimeError):
         # ldconfig is not accessible as user
+        # or running on Windows
+        # or other errors
         try:
             libc_path = find_libc_ldd()
         except FileNotFoundError:
             # test hardcoded paths
             logging.debug("Finding libc path: hardcoded paths")
             for maybe_libc in LIBC_PATH_POSSIBILITIES:
-                if Path(maybe_libc).exists():
+                if Path(maybe_libc).resolve().exists():
                     libc_path = maybe_libc
                     break
     if libc_path is None:
-        raise RuntimeError("Cannot find a suitable libc path on your system")
+        raise LibcNotFoundError("Cannot find a suitable libc path on your system")
     logging.debug("Found libc: %s", libc_path)
     return libc_path
 
@@ -64,9 +71,14 @@ def find_libc_ldd():
 
 
 def find_library_full(name):
-    """https://stackoverflow.com/a/29227195/3017219"""
+    """https://stackoverflow.com/a/29227195/3017219
+
+    :raise:
+        AttributeError: if an attribute is not found on OS module
+        RuntimeError"""
     logging.debug("Finding libc path: ldconfig")
     # see ctypes.find_library code
+    # Note: os.uname is OS dependant, will raise AttributeError
     uname = os.uname()[4]
     if uname.startswith("arm"):
         uname = "arm"

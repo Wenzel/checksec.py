@@ -8,7 +8,7 @@ import lief
 
 from .binary import BinarySecurity
 from .errors import ErrorParsingFailed
-from .utils import find_libc
+from .utils import LibcNotFoundError, find_libc
 
 FORTIFIED_END_MARKER = "_chk"
 FORTFIED_START_MARKER = "__"
@@ -32,10 +32,6 @@ ELFChecksecData = namedtuple(
 
 
 __LIBC_OBJ = {}
-
-
-class LibcNotFoundError(Exception):
-    pass
 
 
 def get_libc(libc_path: Optional[Path] = None) -> Optional["Libc"]:
