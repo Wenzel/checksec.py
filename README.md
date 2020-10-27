@@ -116,10 +116,12 @@ Check `--help` for more options (_JSON output_, _recursive walk_, _workers count
 
 |                            | checksec.py | checksec.sh |
 |----------------------------|:-----------:|:-----------:|
-| Distributed workload        |     ✔       |     ❌       |
+| Cross-Platform support      |     ✔       |     ❌      |
+| Distributed workload        |     ✔       |     ❌      |
 | Scan file                  |      ✔      |      ✔      |
 | Scan directory             |      ✔      |      ✔      |
 | Scan directory recursively |      ✔      |      ❌     |
+| Specify libc path          |      ✔      |      ❌     |
 | Scan process               |      ❌     |     ✔       |
 | Scan process libs          |      ❌     |     ✔       |
 | Scan kernel config         |      ❌     |     ✔       |
@@ -144,6 +146,7 @@ Check `--help` for more options (_JSON output_, _recursive walk_, _workers count
 
 |                             | checksec.py | winchecksec |
 |-----------------------------|:-----------:|:-----------:|
+| Cross-Platform support      |     ✔       |     ❌      |
 | Distributed workload        |     ✔       |     ❌       |
 | Scan file                   |     ✔       |     ✔       |
 | Scan directory              |     ✔       |     ❌      |

@@ -1,4 +1,5 @@
 import json
+import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import List, Union
@@ -137,6 +138,7 @@ class RichOutput(AbstractChecksecOutput):
         self.process_task_id = self.process_bar.add_task("Checking", total=self.total)
 
     def add_checksec_result(self, filepath: Path, checksec: Union[ELFChecksecData, PEChecksecData]):
+        logging.debug("result for %s: %s", filepath, checksec)
         if isinstance(checksec, ELFChecksecData):
             row_res: List[str] = []
             # display results
