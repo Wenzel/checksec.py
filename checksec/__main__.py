@@ -16,7 +16,7 @@ import logging
 import os
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
-from typing import Iterator, List, Union
+from typing import Iterator, List, Optional, Union
 
 from docopt import docopt
 
@@ -50,6 +50,18 @@ def checksec_file(filepath: Path) -> Union["ELFChecksecData", "PEChecksecData"]:
     else:
         raise NotImplementedError
     return binary.checksec_state
+
+
+def worker_initializer(libc_path: Optional[Path] = None):
+    """Routine to initialize some context in a worker process"""
+    # this function is used to set global object in the worker's process context
+    # multiprocessing has different behaviors on Windows and Linux
+    # on Windows, the global object __LIBC_OBJ in elf.py is found to be uninitialized,
+    # even after we explicitely initialized it in the main function.
+    #
+    # this function ensures that the object is initialized with the libc_path passed as cmdline argument
+    logging.debug("Worker %s: initializer", os.getpid())
+    get_libc(libc_path)
 
 
 def main(args):
@@ -93,7 +105,9 @@ def main(args):
             check_output.enumerating_tasks_start()
             count = sum(1 for i in walk_filepath_list(filepath_list, recursive))
             check_output.enumerating_tasks_stop(count)
-            with ProcessPoolExecutor(max_workers=workers) as pool:
+            with ProcessPoolExecutor(
+                max_workers=workers, initializer=worker_initializer, initargs=(libc_path,)
+            ) as pool:
                 try:
                     check_output.processing_tasks_start()
                     future_to_checksec = {
