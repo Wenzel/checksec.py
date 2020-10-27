@@ -77,8 +77,7 @@ Based on:
 
 ## Requirements
 
-- `Python 3.6`
-- `virtualenv`
+- ![](https://img.shields.io/pypi/pyversions/checksec.py)
 
 ## Setup
 
@@ -97,8 +96,9 @@ You find the `checksec.exe` on the latest Github releases:
 </a>
 
 ~~~
-virtualenv -p python3 venv
+python3 -m venv venv
 source venv/bin/activate
+(venv) pip install
 (venv) pip install checksec.py
 ~~~
 
