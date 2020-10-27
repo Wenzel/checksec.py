@@ -37,7 +37,7 @@ def find_libc():
         # or other errors
         try:
             libc_path = find_libc_ldd()
-        except FileNotFoundError:
+        except (FileNotFoundError, RuntimeError):
             # test hardcoded paths
             logging.debug("Finding libc path: hardcoded paths")
             for maybe_libc in LIBC_PATH_POSSIBILITIES:
