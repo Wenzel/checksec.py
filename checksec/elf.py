@@ -1,3 +1,4 @@
+import logging
 from collections import namedtuple
 from enum import Enum
 from functools import lru_cache
@@ -48,12 +49,16 @@ def get_libc(libc_path: Optional[Path] = None) -> Optional["Libc"]:
     try:
         __LIBC_OBJ["libc"]
     except KeyError:
+        logging.debug("Libc object not set")
         try:
             libc = Libc(libc_path)
-        except (LibcNotFoundError, ErrorParsingFailed):
+        except (LibcNotFoundError, ErrorParsingFailed) as e:
+            logging.debug("Failed to init Libc object: %s", e)
             __LIBC_OBJ["libc"] = None
         else:
+            logging.debug("Libc object initialized")
             __LIBC_OBJ["libc"] = libc
+    logging.debug(__LIBC_OBJ)
     return __LIBC_OBJ["libc"]
 
 
@@ -79,6 +84,7 @@ class Libc:
             libpath = Path(find_libc())
             if not libpath:
                 raise LibcNotFoundError
+        logging.debug("Initializing Libc from %s", libpath)
         self.libc = lief.parse(str(libpath))
         if not self.libc:
             raise ErrorParsingFailed(libpath)
