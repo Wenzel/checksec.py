@@ -77,7 +77,7 @@ Based on:
 
 ## Requirements
 
-- ![](https://img.shields.io/pypi/pyversions/checksec.py)
+![](https://img.shields.io/pypi/pyversions/checksec.py)
 
 ## Setup
 
