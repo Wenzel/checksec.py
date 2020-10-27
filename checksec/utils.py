@@ -41,7 +41,12 @@ def find_libc():
             # test hardcoded paths
             logging.debug("Finding libc path: hardcoded paths")
             for maybe_libc in LIBC_PATH_POSSIBILITIES:
-                if Path(maybe_libc).resolve().exists():
+                maybe_libc_path = Path(maybe_libc)
+                if maybe_libc_path.exists():
+                    # symlink
+                    if maybe_libc_path.is_symlink():
+                        maybe_libc_path = os.readlink(str(maybe_libc_path))
+                if maybe_libc_path.resolve().is_file():
                     libc_path = maybe_libc
                     break
     if libc_path is None:
