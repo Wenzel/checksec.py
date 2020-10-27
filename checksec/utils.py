@@ -7,6 +7,8 @@ import subprocess
 from pathlib import Path
 
 import lddwrap
+# cannot use is_elf because of circular dependency
+import lief
 
 
 class LibcNotFoundError(Exception):
@@ -41,12 +43,15 @@ def find_libc():
             # test hardcoded paths
             logging.debug("Finding libc path: hardcoded paths")
             for maybe_libc in LIBC_PATH_POSSIBILITIES:
+                logging.debug("Testing libc at %s", maybe_libc)
                 maybe_libc_path = Path(maybe_libc)
                 if maybe_libc_path.exists():
                     # symlink
                     if maybe_libc_path.is_symlink():
-                        maybe_libc_path = os.readlink(str(maybe_libc_path))
-                if maybe_libc_path.resolve().is_file():
+                        dst = os.readlink(str(maybe_libc_path))
+                        logging.debug("Resolve symlink %s -> %s", maybe_libc_path, dst)
+                        maybe_libc_path = Path(dst)
+                if lief.is_elf(str(maybe_libc_path)):
                     libc_path = maybe_libc
                     break
     if libc_path is None:
