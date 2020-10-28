@@ -98,7 +98,6 @@ You find the `checksec.exe` on the latest Github releases:
 ~~~
 python3 -m venv venv
 source venv/bin/activate
-(venv) pip install
 (venv) pip install checksec.py
 ~~~
 
