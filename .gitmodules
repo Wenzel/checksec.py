@@ -1,0 +1,3 @@
+[submodule "tests/binaries"]
+	path = tests/binaries
+	url = git@github.com:Wenzel/checksec.py-test-binaries.git
