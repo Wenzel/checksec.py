@@ -7,6 +7,7 @@ import subprocess
 from pathlib import Path
 
 import lddwrap
+
 # cannot use is_elf because of circular dependency
 import lief
 
