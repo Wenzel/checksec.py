@@ -99,10 +99,15 @@ jobs:
 
   test:
     needs: build
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
 
       - name: Set up Python 3.7 🐍
         uses: actions/setup-python@v1
@@ -113,13 +118,7 @@ jobs:
         run: python -m pip install nox==2020.8.22
 
       - name: Run tests
-        run: nox -s test
-
-      - name: Install package 📦
-        run: python -m pip install .
-
-      - name: Run smoke test
-        run: checksec /usr/lib
+        run: nox -s test_e2e -- -s
 
   release:
     needs: test

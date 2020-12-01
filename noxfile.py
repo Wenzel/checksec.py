@@ -1,6 +1,6 @@
 import nox
 
-nox.options.sessions = ["fmt", "lint", "test"]
+nox.options.sessions = ["fmt", "lint", "test_e2e"]
 
 
 @nox.session
@@ -31,7 +31,28 @@ def run(session):
 
 
 @nox.session
-def test(session):
+def test_unit(session):
+    # run unit tests
+    args = session.posargs
     session.install("-r", "requirements.txt")
     session.install("pytest==6.0.2", "coverage==5.3")
-    session.run("coverage", "run", "-m", "pytest", "-v")
+    session.run("coverage", "run", "--concurrency=multiprocessing", "-m", "pytest", "-v", "-k", "unit", *args)
+    session.run("coverage", "combine")
+    session.run("coverage", "report")
+
+
+@nox.session
+def test_e2e(session):
+    args = session.posargs
+    session.install(".")
+    session.install("pytest==6.0.2", "coverage==5.3")
+    session.run("coverage", "run", "--concurrency=multiprocessing", "-m", "pytest", "-v", "-k", "e2e", *args)
+    session.run("coverage", "combine")
+    session.run("coverage", "report")
+
+
+@nox.session
+def coverage(session):
+    args = session.posargs if session.posargs else ["report"]
+    session.install("coverage==5.3")
+    session.run("coverage", *args)

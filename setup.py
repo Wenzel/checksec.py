@@ -1,6 +1,6 @@
 import setuptools
 
-with open("README.md", "r") as fh:
+with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 with open("requirements.txt") as f:
@@ -8,7 +8,7 @@ with open("requirements.txt") as f:
 
 setuptools.setup(
     name="checksec.py",
-    version="0.5.0",
+    version="0.5.1",
     author="Mathieu Tarral",
     author_email="mathieu.tarral@protonmail.com",
     description="Checksec tool implemented in Python",
