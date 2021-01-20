@@ -84,6 +84,7 @@ class RichOutput(AbstractChecksecOutput):
         self.table_pe.add_column("Force Integrity", justify="center")
         self.table_pe.add_column("Control Flow Guard", justify="center")
         self.table_pe.add_column("Isolation", justify="center")
+        self.table_pe.add_column("Authenticode", justify="center")
 
         # init console
         self.console = Console()
@@ -265,6 +266,11 @@ class RichOutput(AbstractChecksecOutput):
             else:
                 safe_seh_res = "/"
 
+            if not checksec.authenticode:
+                auth_res = "[red]No"
+            else:
+                auth_res = "[green]Yes"
+
             if not checksec.force_integrity:
                 force_integrity_res = "[red]No"
             else:
@@ -292,6 +298,7 @@ class RichOutput(AbstractChecksecOutput):
                 force_integrity_res,
                 guard_cf_res,
                 isolation_res,
+                auth_res,
             )
         else:
             raise NotImplementedError
@@ -349,6 +356,7 @@ class JSONOutput(AbstractChecksecOutput):
                 "isolation": checksec.isolation,
                 "seh": checksec.seh,
                 "safe_seh": checksec.safe_seh,
+                "authenticode": checksec.authenticode,
                 "guard_cf": checksec.guard_cf,
                 "force_integrity": checksec.force_integrity,
             }
