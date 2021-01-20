@@ -2,7 +2,7 @@ from collections import namedtuple
 from pathlib import Path
 
 import lief
-from lief.PE import DLL_CHARACTERISTICS, HEADER_CHARACTERISTICS, MACHINE_TYPES
+from lief.PE import DLL_CHARACTERISTICS, HEADER_CHARACTERISTICS, MACHINE_TYPES, Signature
 
 from .binary import BinarySecurity
 
@@ -20,6 +20,7 @@ PEChecksecData = namedtuple(
         "force_integrity",
         "guard_cf",
         "isolation",
+        "authenticode",
     ],
 )
 
@@ -89,6 +90,11 @@ class PESecurity(BinarySecurity):
             return False
 
     @property
+    def is_authenticode_valid(self) -> bool:
+        """Whether the binary has a valid Authenticode signature"""
+        return self.bin.verify_signature() == Signature.VERIFICATION_FLAGS.OK
+
+    @property
     def has_force_integrity(self) -> bool:
         """Whether FORCE_INTEGRITY is enabled"""
         # 2011 ?
@@ -127,4 +133,5 @@ class PESecurity(BinarySecurity):
             force_integrity=self.has_force_integrity,
             guard_cf=self.has_guard_cf,
             isolation=self.has_isolation,
+            authenticode=self.is_authenticode_valid,
         )
