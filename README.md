@@ -83,7 +83,7 @@ Based on:
 
 ### Windows
 
-You find the `checksec.exe` on the latest Github releases: 
+You find the `checksec.exe` on the latest Github releases:
 
 <a href="https://github.com/Wenzel/checksec.py/releases/latest">
   <img src="https://img.shields.io/badge/Windows%20release-download-blue?style=for-the-badge"/>
@@ -145,7 +145,7 @@ Check `--help` for more options (_JSON output_, _recursive walk_, _workers count
 
 |                             | checksec.py | winchecksec |
 |-----------------------------|:-----------:|:-----------:|
-| Cross-Platform support      |     ✔       |     ❌      |
+| Cross-Platform support      |     ✔       |     ✔      |
 | Distributed workload        |     ✔       |     ❌       |
 | Scan file                   |     ✔       |     ✔       |
 | Scan directory              |     ✔       |     ❌      |
