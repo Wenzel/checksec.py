@@ -22,6 +22,7 @@ PE_BINARIES = Path(__file__).parent.parent / "binaries" / "pe"
         "force_integrity",
         "guard_cf",
         "isolation",
+        "authenticode",
     ],
 )
 def test_bool_prop(prop: str, is_enabled: bool):
