@@ -97,7 +97,7 @@ class PESecurity(BinarySecurity):
     @property
     def has_force_integrity(self) -> bool:
         """Whether FORCE_INTEGRITY is enabled"""
-        # 2011 ?
+        # /INTEGRITYCHECK
         return self.bin.optional_header.has(DLL_CHARACTERISTICS.FORCE_INTEGRITY)
 
     @property
@@ -107,8 +107,6 @@ class PESecurity(BinarySecurity):
         # winchecksec:
         # https://github.com/trailofbits/winchecksec/blob/v2.0.0/checksec.cpp#L238
         return self.is_aslr and self.bin.optional_header.has(DLL_CHARACTERISTICS.GUARD_CF)
-
-    # code integrity: November 2015 (Windows 10 1511)
 
     # Return Flow Guard: October 2016 (Windows 10 Redstone 2)
 

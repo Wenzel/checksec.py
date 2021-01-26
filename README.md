@@ -154,7 +154,7 @@ Check `--help` for more options (_JSON output_, _recursive walk_, _workers count
 | Output JSON                 |     ✔       |    ✔        |
 | PE: ASLR - DYNAMIC_BASE     |     ✔       |    ✔        |
 | PE: ASLR - HIGHENTROPYVA    |     ✔       |    ✔        |
-| PE: INTEGRITYCHECK          |     ❌      |    ✔        |
+| PE: INTEGRITYCHECK          |     ✔       |    ✔        |
 | PE: Authenticode signed     |     ✔       |    ✔        |
 | PE: DEP                     |     ✔       |   ✔         |
 | PE: Manifest Isolation      |     ✔       |    ✔        |
