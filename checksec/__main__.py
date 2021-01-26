@@ -18,6 +18,7 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
 from typing import Iterator, List, Optional, Union
 
+import lief  # only to set the lief logging level
 from docopt import docopt
 
 from .elf import ELFChecksecData, ELFSecurity, get_libc, is_elf
@@ -75,9 +76,12 @@ def main(args):
     # logging
     formatter = "%(asctime)s %(levelname)s:%(name)s:%(message)s"
     log_lvl = logging.INFO
+    lief_logging = lief.logging.LOGGING_LEVEL.CRITICAL  # silence lief warnings
     if debug:
         log_lvl = logging.DEBUG
+        lief_logging = lief.logging.LOGGING_LEVEL.DEBUG
     logging.basicConfig(level=log_lvl, format=formatter)
+    lief.logging.set_level(lief_logging)
 
     libc_detected = False
     # init Libc LIEF object
