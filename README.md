@@ -29,11 +29,11 @@ Checksec tool in Python, Rich output, based on LIEF
   </a>
 </p>
 <p align="center">
-  <a href="">
-    <img src="https://img.shields.io/pypi/dm/checksec.py?color=blue&label=PyPI%20downloads&style=flat-square" />
+  <a href="https://pepy.tech/project/checksec.py">
+    <img src="https://pepy.tech/badge/checksec-py" />  
   </a>
-  <a href="https://github.com/Wenzel/checksec.py/releases">
-    <img src="https://img.shields.io/github/downloads/Wenzel/checksec.py/total?color=blue&label=Github%20downloads&style=flat-square" />
+  <a href="https://pepy.tech/project/checksec.py">
+    <img src="https://img.shields.io/pypi/dm/checksec.py?color=blue&label=downloads&style=flat-square" />
   </a>
 </p>
 
@@ -154,8 +154,8 @@ Check `--help` for more options (_JSON output_, _recursive walk_, _workers count
 | Output JSON                 |     ✔       |    ✔        |
 | PE: ASLR - DYNAMIC_BASE     |     ✔       |    ✔        |
 | PE: ASLR - HIGHENTROPYVA    |     ✔       |    ✔        |
-| PE: INTEGRITYCHECK          |     ❌       |    ✔        |
-| PE: Authenticode signed     |     ❌      |    ✔        |
+| PE: INTEGRITYCHECK          |     ❌      |    ✔        |
+| PE: Authenticode signed     |     ✔       |    ✔        |
 | PE: DEP                     |     ✔       |   ✔         |
 | PE: Manifest Isolation      |     ✔       |    ✔        |
 | PE: SEH                     |     ✔       |    ✔        |
