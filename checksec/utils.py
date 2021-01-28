@@ -5,10 +5,12 @@ import shutil
 import struct
 import subprocess
 from pathlib import Path
+from typing import Dict
 
 import lddwrap
 # cannot use is_elf because of circular dependency
 import lief
+from lief.logging import LOGGING_LEVEL as lief_loglvl
 
 
 class LibcNotFoundError(Exception):
@@ -26,6 +28,14 @@ LIBC_PATH_POSSIBILITIES = [
     "/lib/aarch64-linux-gnu/libc.so.6",
     "/usr/x86_64-gentoo-linux-musl/bin/ld",
 ]
+PY_LOG_TO_LIEF_LOG: Dict[int, lief_loglvl] = {
+    0: lief_loglvl.TRACE,
+    logging.DEBUG: lief_loglvl.DEBUG,
+    logging.INFO: lief_loglvl.INFO,
+    logging.WARNING: lief_loglvl.WARNING,
+    logging.ERROR: lief_loglvl.ERROR,
+    logging.CRITICAL: lief_loglvl.CRITICAL,
+}
 
 
 def find_libc():
@@ -121,3 +131,21 @@ def find_library_full(name):
     if result is None:
         raise RuntimeError("Library %s not found" % name)
     return result
+
+
+def lief_set_logging(lvl: int):
+    """Configures LIEF logging level
+
+    lvl: Python numeric logging level, corresponding to the logging module level values
+
+
+    example:
+        import logging
+        lief_set_logging(logging.WARNING)
+    """
+    try:
+        lief_log = PY_LOG_TO_LIEF_LOG[lvl]
+    except KeyError as e:
+        raise RuntimeError(f"Failed to find LIEF logging level for {lvl}") from e
+    else:
+        lief.logging.set_level(lief_log)
