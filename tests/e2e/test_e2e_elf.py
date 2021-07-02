@@ -28,6 +28,13 @@ def test_relro(relro_type: RelroType):
     assert chk_data[str(bin_path)]["relro"] == relro_type.name
 
 
+def test_relro_full_df1():
+    """Test that relro type is full via dynamic flags 1"""
+    bin_path = ELF_BINARIES / "relro_full_FLAGS_1"
+    chk_data = run_checksec(bin_path)
+    assert chk_data[str(bin_path)]["relro"] == RelroType.Full.name
+
+
 @pytest.mark.parametrize("pie_type", list(PIEType))
 def test_pie(pie_type):
     """Test that PIE is No/Partial/Full"""
