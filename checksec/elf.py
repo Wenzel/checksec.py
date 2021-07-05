@@ -138,7 +138,12 @@ class ELFSecurity(BinarySecurity):
 
     @property
     def pie(self) -> PIEType:
-        if self.bin.is_pie:
+        try:
+            flags_1_pie = lief.ELF.DYNAMIC_FLAGS_1.PIE in self.bin.get(lief.ELF.DYNAMIC_TAGS.FLAGS_1)
+        except lief.not_found:
+            flags_1_pie = False
+
+        if self.bin.is_pie or flags_1_pie:
             if self.bin.has(lief.ELF.DYNAMIC_TAGS.DEBUG):
                 return PIEType.PIE
             else:
