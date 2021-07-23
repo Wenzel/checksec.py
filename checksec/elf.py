@@ -118,12 +118,23 @@ class ELFSecurity(BinarySecurity):
     def relro(self) -> RelroType:
         try:
             self.bin.get(lief.ELF.SEGMENT_TYPES.GNU_RELRO)
-            if lief.ELF.DYNAMIC_FLAGS.BIND_NOW in self.bin.get(lief.ELF.DYNAMIC_TAGS.FLAGS):
-                return RelroType.Full
-            else:
-                return RelroType.Partial
         except lief.not_found:
             return RelroType.No
+
+        try:
+            bind_now = lief.ELF.DYNAMIC_FLAGS.BIND_NOW in self.bin.get(lief.ELF.DYNAMIC_TAGS.FLAGS)
+        except lief.not_found:
+            bind_now = False
+
+        try:
+            now = lief.ELF.DYNAMIC_FLAGS_1.NOW in self.bin.get(lief.ELF.DYNAMIC_TAGS.FLAGS_1)
+        except lief.not_found:
+            now = False
+
+        if bind_now or now:
+            return RelroType.Full
+        else:
+            return RelroType.Partial
 
     @property
     def has_canary(self) -> bool:
