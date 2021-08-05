@@ -229,8 +229,7 @@ class ELFSecurity(BinarySecurity):
                 else:
                     score = (fortified_count * 100) / fortifiable_count
                     score = round(score)
-
-            fortify_source = True if fortified_count != 0 else False
+            fortify_source = True if fortified_count != 0 or fortifiable_count == 0 else False
         return ELFChecksecData(
             relro=self.relro,
             canary=self.has_canary,
