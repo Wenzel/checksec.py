@@ -77,6 +77,7 @@ class PIEType(Enum):
     No = 1
     DSO = 2
     PIE = 3
+    REL = 4
 
 
 class Libc:
@@ -155,6 +156,8 @@ class ELFSecurity(BinarySecurity):
                 return PIEType.PIE
             else:
                 return PIEType.DSO
+        elif self.bin.header.file_type == E_TYPE.RELOCATABLE:
+            return PIEType.REL
         return PIEType.No
 
     @property

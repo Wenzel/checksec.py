@@ -154,6 +154,8 @@ class RichOutput(AbstractChecksecOutput):
                 pie_res = f"[red]{pie.name}"
             elif pie == PIEType.DSO:
                 pie_res = f"[yellow]{pie.name}"
+            elif pie == PIEType.REL:
+                pie_res = f"[yellow]{pie.name}"
             else:
                 pie_res = "[green]Yes"
             row_res.append(pie_res)
