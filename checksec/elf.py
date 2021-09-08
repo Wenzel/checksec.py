@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import FrozenSet, List, Optional
 
 import lief
+from lief.ELF import E_TYPE
 
 from .binary import BinarySecurity
 from .errors import ErrorParsingFailed
@@ -76,6 +77,7 @@ class PIEType(Enum):
     No = 1
     DSO = 2
     PIE = 3
+    REL = 4
 
 
 class Libc:
@@ -149,11 +151,13 @@ class ELFSecurity(BinarySecurity):
 
     @property
     def pie(self) -> PIEType:
-        if self.bin.is_pie:
+        if self.bin.header.file_type == E_TYPE.DYNAMIC:
             if self.bin.has(lief.ELF.DYNAMIC_TAGS.DEBUG):
                 return PIEType.PIE
             else:
                 return PIEType.DSO
+        elif self.bin.header.file_type == E_TYPE.RELOCATABLE:
+            return PIEType.REL
         return PIEType.No
 
     @property
