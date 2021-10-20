@@ -3,9 +3,6 @@ import setuptools
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
-with open("requirements.txt") as f:
-    requirements = f.read().splitlines()
-
 setuptools.setup(
     name="checksec.py",
     version="0.6.2",
@@ -16,7 +13,12 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/Wenzel/checksec.py",
     packages=setuptools.find_packages(),
-    install_requires=requirements,
+    install_requires=[
+        "lief==0.11.0",
+        "docopt==0.6.2",
+        "rich==7.1.0",
+        "pylddwrap==1.0.1",
+    ],
     entry_points={
         "console_scripts": ["checksec = checksec.__main__:entrypoint"],
     },
