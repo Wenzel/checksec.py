@@ -104,7 +104,7 @@ source venv/bin/activate
 ## Usage
 
 ~~~
-(venv) checkec <file_or_directory>...
+(venv) checksec <file_or_directory>...
 ~~~
 
 Check `--help` for more options (_JSON output_, _recursive walk_, _workers count_)
