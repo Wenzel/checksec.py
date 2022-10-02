@@ -5,9 +5,9 @@ nox.options.sessions = ["fmt", "lint", "test_e2e"]
 
 @nox.session
 def lint(session):
-    session.install("flake8==3.8.3", "flake8-bugbear==20.1.4", "isort==5.5.3")
+    session.install("flake8==5.0.4", "flake8-bugbear==20.1.4", "isort==5.10.1")
     session.run("flake8", "--show-source", "--statistics")
-    session.run("isort", "--line-length", "120", ".")
+    session.run("isort", "--line-length", "120", "--profile", "black", ".")
 
 
 @nox.session
