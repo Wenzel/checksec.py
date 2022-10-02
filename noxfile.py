@@ -12,7 +12,7 @@ def lint(session):
 
 @nox.session
 def fmt(session):
-    session.install("black==20.8b1")
+    session.install("black==22.8.0")
     session.run("black", "--line-length", "120", ".")
 
 

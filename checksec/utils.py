@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Dict
 
 import lddwrap
+
 # cannot use is_elf because of circular dependency
 import lief
 from lief.logging import LOGGING_LEVEL as lief_loglvl
