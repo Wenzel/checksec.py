@@ -9,6 +9,9 @@ license = "GPL-3.0-only"
 repository = "https://github.com/Wenzel/checksec.py"
 keywords = ["checksec", "security", "ELF", "PE", "binary"]
 
+[tool.poetry.scripts]
+checksec = 'checksec.__main__:entrypoint'
+
 [tool.poetry.dependencies]
 python = "^3.8,<3.12"
 lief = "0.12.3"
