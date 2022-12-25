@@ -28,3 +28,20 @@ coverage = "5.3"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 120
+
+[tool.poe.tasks]
+fmt = "black ."
+flake8 = "flake8 --show-source --statistics"
+isort = "isort --line-length 120 --profile black ."
+lint = ["flake8", "isort"]
+mypy = "mypy ."
+type = ["mypy"]
+run_test_unit = "coverage run --concurrency=multiprocessing -m pytest -v -k unit"
+cov_combine = "coverage combine"
+cov_report = "coverage report"
+test_unit = ["run_test_unit", "cov_combine", "cov_report"]
+run_test_e2e = "coverage run --concurrency=multiprocessing -m pytest -v -k e2e"
+test_e2e = ["run_test_e2e", "cov_combine", "cov_report"]
