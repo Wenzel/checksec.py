@@ -32,6 +32,10 @@ build-backend = "poetry.core.masonry.api"
 [tool.black]
 line-length = 120
 
+[tool.coverage.run]
+# measure branch coverage in addition to statement coverage
+branch = true
+
 [tool.poe.tasks]
 fmt = "black ."
 flake8 = "flake8 --show-source --statistics"
