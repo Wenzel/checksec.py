@@ -1,22 +1,42 @@
 name: 'Project setup'
 description: 'This actions will setup Python, the cache and install the dependencies'
 author: 'Mathieu Tarral'
+inputs:
+  python_version:
+    description: 'Python version to setup'
+    required: true
+    default: '3.8'
 runs:
     using: 'composite'
     steps:
       - name: Set up Python 🐍
         uses: actions/setup-python@v4
         with:
-          python-version: '3.8'
-          cache: "poetry"
+          python-version: ${{ inputs.python_version }}
 
       - name: Install Poetry
         uses: snok/install-poetry@v1
+        with:
+          version: 1.3.1
 
-      - name: Set Poetry config 
-        run: |
-          poetry config settings.virtualenvs.in-project false
-          poetry config settings.virtualenvs.path ~/.virtualenvs
+      # Cache your dependencies (i.e. all the stuff in your `pyproject.toml`). Note the cache
+      # key: if you're using multiple Python versions, or multiple OSes, you'd need to include
+      # them in the cache key. I'm not, so it can be simple and just depend on the poetry.lock.
+      - name: cache deps
+        id: cache-deps
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache/pypoetry
+          key: pydeps-${{ inputs.python_version }}-${{ hashFiles('**/poetry.lock') }}
+
+      # Install dependencies. `--no-root` means "install all dependencies but not the project
+      # itself", which is what you want to avoid caching _your_ code. The `if` statement
+      # ensures this only runs on a cache miss.
+      - name: Install dependencies
+        run: poetry install --no-interaction --no-root
+        shell: bash
+        if: steps.cache-deps.outputs.cache-hit != 'true'
 
       - name: Install project
-        run: poetry install
+        run: poetry install --no-interaction
+        shell: bash
