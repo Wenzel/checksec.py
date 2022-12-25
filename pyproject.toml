@@ -25,8 +25,8 @@ flake8-bugbear = "20.1.4"
 isort = "5.10.1"
 black = "22.8.0"
 mypy = "0.782"
-pytest = "6.0.2"
-coverage = "5.3"
+pytest = "7.2.0"
+coverage = { version = "5.3", extras = ["toml"] }
 poethepoet = "^0.16.5"
 pyinstaller = "5.7.0"
 
@@ -48,9 +48,7 @@ isort = "isort --line-length 120 --profile black ."
 lint = ["flake8", "isort"]
 mypy = "mypy ."
 type = ["mypy"]
-run_test_unit = "coverage run --concurrency=multiprocessing -m pytest -v -k unit"
 cov_combine = "coverage combine"
 cov_report = "coverage report"
-test_unit = ["run_test_unit", "cov_combine", "cov_report"]
 run_test_e2e = "coverage run --concurrency=multiprocessing -m pytest -v -k e2e"
 test_e2e = ["run_test_e2e", "cov_combine", "cov_report"]
