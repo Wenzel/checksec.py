@@ -1,0 +1,22 @@
+name: 'Project setup'
+description: 'This actions will setup Python, the cache and install the dependencies'
+author: 'Mathieu Tarral'
+runs:
+    using: 'composite'
+    steps:
+      - name: Set up Python 🐍
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'
+          cache: "poetry"
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+
+      - name: Set Poetry config 
+        run: |
+          poetry config settings.virtualenvs.in-project false
+          poetry config settings.virtualenvs.path ~/.virtualenvs
+
+      - name: Install project
+        run: poetry install
