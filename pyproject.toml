@@ -1,0 +1,30 @@
+[tool.poetry]
+name = "checksec-py"
+version = "0.6.2"
+description = "Checksec tool implemented in Python"
+authors = ["Mathieu Tarral <mathieu.tarral@protonmail.com>"]
+readme = "README.md"
+packages = [{include = "checksec"}]
+license = "GPL-3.0-only"
+repository = "https://github.com/Wenzel/checksec.py"
+keywords = ["checksec", "security", "ELF", "PE", "binary"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+lief = "0.11.0"
+docopt = "0.6.2"
+rich = "7.1.0"
+pylddwrap = "1.0.1"
+
+[tool.poetry.dev-dependencies]
+flake8 = "5.0.4"
+flake8-bugbear = "20.1.4"
+isort = "5.10.1"
+black = "22.8.0"
+mypy = "0.782"
+pytest = "6.0.2"
+coverage = "5.3"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
