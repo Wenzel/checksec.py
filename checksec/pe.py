@@ -41,11 +41,8 @@ class PESecurity(BinarySecurity):
         """Whether stack security cookie is enabled (/GS)"""
         try:
             return True if self.bin.load_configuration.security_cookie != 0 else False
-        except lief.not_found:
-            # no load_configuration
-            return False
         except AttributeError:
-            # no security cookie
+            # # no load_configuration or no security cookie
             return False
 
     @property
@@ -82,11 +79,8 @@ class PESecurity(BinarySecurity):
                 and self.bin.load_configuration.se_handler_table != 0
                 and self.bin.load_configuration.se_handler_count != 0
             )
-        except lief.not_found:
-            # no load_configuration
-            return False
         except AttributeError:
-            # no se_handler_xx
+            # no load_configuration or no se_handler_xx
             return False
 
     @property
