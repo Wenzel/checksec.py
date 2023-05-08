@@ -17,7 +17,7 @@ runs:
       - name: Install Poetry
         uses: snok/install-poetry@v1
         with:
-          version: 1.3.1
+          version: 1.4.2
 
       # Cache your dependencies (i.e. all the stuff in your `pyproject.toml`). Note the cache
       # key: if you're using multiple Python versions, or multiple OSes, you'd need to include
