@@ -54,7 +54,7 @@ jobs:
         shell: bash
 
       - name: Upload Windows release artefact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: checksec.exe
           path: dist/checksec.exe
@@ -123,7 +123,7 @@ jobs:
       - uses: actions/checkout@v3
 
       # download artifacts
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: checksec.exe
 
