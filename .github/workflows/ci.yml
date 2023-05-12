@@ -144,19 +144,12 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Set up Python 3.7 🐍
-        uses: actions/setup-python@v1
-        with:
-          python-version: '3.7'
+      - uses: ./.github/actions/common-setup
 
-      - name: Build 🔨
-        run: |
-          python -m pip install wheel
-          python setup.py sdist
-          python setup.py bdist_wheel
+      - name: Build package
+        run: poetry build
 
       - name: Publish on PyPI 🚀
-        uses: pypa/gh-action-pypi-publish@v1.3.1
-        with:
-          user: __token__
-          password: ${{ secrets.ACCESS_TOKEN }}
+        run: poetry publish
+        env:
+          POETRY_PYPI_TOKEN_PYPI: ${{ secrets.ACCESS_TOKEN }}
