@@ -15,9 +15,9 @@ runs:
           python-version: ${{ inputs.python_version }}
 
       - name: Install Poetry
-        uses: snok/install-poetry@v1
+        uses: abatilo/actions-poetry@v2
         with:
-          version: 1.4.2
+          poetry-version: 1.4.2
 
       # Cache your dependencies (i.e. all the stuff in your `pyproject.toml`). Note the cache
       # key: if you're using multiple Python versions, or multiple OSes, you'd need to include
