@@ -11,81 +11,47 @@ on:
   pull_request:
 
 jobs:
-  format:
+  code_checks:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        task: ["fmt", "lint"]
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
 
-      - name: Set up Python 3.7 🐍
-        uses: actions/setup-python@v1
-        with:
-          python-version: '3.7'
+      - uses: ./.github/actions/common-setup
 
-      - name: Install Nox
-        run: python -m pip install nox==2020.8.22
-
-      - name: Formatting
-        run: nox -s fmt
-
-  lint:
-    needs: format
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v1
-
-      - name: Set up Python 3.7 🐍
-        uses: actions/setup-python@v1
-        with:
-          python-version: '3.7'
-
-      - name: Install Nox
-        run: python -m pip install nox==2020.8.22
-
-      - name: Lint
-        run: nox -s lint
+      - name: check code
+        run: poetry run poe ${{ matrix.task }}
 
   build:
-    needs: lint
+    needs: code_checks
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
 
-      - name: Set up Python 3.7 🐍
-        uses: actions/setup-python@v1
-        with:
-          python-version: '3.7'
+      - uses: ./.github/actions/common-setup
 
       - name: Build 🔨
-        run: |
-          python -m pip install wheel
-          python setup.py sdist
-          python setup.py bdist_wheel
+        run: poetry build
 
   build_windows:
-    needs: lint
+    needs: code_checks
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
 
-      - name: Set up Python 3.7 🐍
-        uses: actions/setup-python@v1
-        with:
-          python-version: '3.7'
-
-      - name: Install PyInstaller
-        run: python -m pip install pyinstaller==5.4.1
+      - uses: ./.github/actions/common-setup
 
       - name: Add entrypoint to bypass issue with relative imports in PyInstaller
         run: powershell -Command 'Invoke-WebRequest https://gist.githubusercontent.com/Wenzel/e38d227d94f16e026b3aed03ea6a6661/raw/383ec56d62c58e444f6c5962ee6940a5c583d341/stub.py -OutFile stub.py'
 
       - name: Build Windows release
-        run: |
-          python -m pip install -r requirements.txt
-          pyinstaller --onefile --name checksec stub.py
+        run: poetry run pyinstaller --onefile --name checksec stub.py
+        shell: bash
 
       - name: Upload Windows release artefact
         uses: actions/upload-artifact@v2
@@ -96,6 +62,7 @@ jobs:
       # TODO: can't test rich output: UnicodeEncodeError: 'charmap' codec can't encode characters in position 0-78: character maps to <undefined>
       - name: Smoke test
         run: ./dist/checksec.exe C:\Windows --json
+        shell: bash
 
   test:
     needs: build
@@ -103,22 +70,19 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
 
-      - name: Set up Python 3.7 🐍
-        uses: actions/setup-python@v1
-        with:
-          python-version: '3.7'
-
-      - name: Install Nox
-        run: python -m pip install nox==2020.8.22
+      - uses: ./.github/actions/common-setup
 
       - name: Run tests
-        run: nox -s test_e2e -- -s
+        run: poetry run poe test_e2e
 
   release:
     needs: test
@@ -131,7 +95,7 @@ jobs:
     # push on master and tag is 'v*'
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
       - name: Get the version
         id: get_version
         run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
@@ -156,7 +120,7 @@ jobs:
       # the deploy action below depends on a checkout of the repo
       # otherwise it fails trying to remote the 'origin' remote
       # https://github.com/JamesIves/github-pages-deploy-action/issues/335
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       # download artifacts
       - uses: actions/download-artifact@v2
@@ -178,7 +142,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
 
       - name: Set up Python 3.7 🐍
         uses: actions/setup-python@v1

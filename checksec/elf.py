@@ -118,20 +118,20 @@ class ELFSecurity(BinarySecurity):
 
     @property
     def relro(self) -> RelroType:
-        try:
-            self.bin.get(lief.ELF.SEGMENT_TYPES.GNU_RELRO)
-        except lief.not_found:
+        if self.bin.get(lief.ELF.SEGMENT_TYPES.GNU_RELRO) is None:
             return RelroType.No
 
-        try:
-            bind_now = lief.ELF.DYNAMIC_FLAGS.BIND_NOW in self.bin.get(lief.ELF.DYNAMIC_TAGS.FLAGS)
-        except lief.not_found:
+        flags = self.bin.get(lief.ELF.DYNAMIC_TAGS.FLAGS)
+        if flags is None:
             bind_now = False
+        else:
+            bind_now = lief.ELF.DYNAMIC_FLAGS.BIND_NOW in flags
 
-        try:
-            now = lief.ELF.DYNAMIC_FLAGS_1.NOW in self.bin.get(lief.ELF.DYNAMIC_TAGS.FLAGS_1)
-        except lief.not_found:
+        flags_1 = self.bin.get(lief.ELF.DYNAMIC_TAGS.FLAGS_1)
+        if flags_1 is None:
             now = False
+        else:
+            now = lief.ELF.DYNAMIC_FLAGS_1.NOW in flags_1
 
         if bind_now or now:
             return RelroType.Full
