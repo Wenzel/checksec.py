@@ -577,24 +577,24 @@ plugins = ["importlib-metadata"]
 
 [[package]]
 name = "pyinstaller"
-version = "5.7.0"
+version = "5.10.1"
 description = "PyInstaller bundles a Python application and all its dependencies into a single package."
 category = "dev"
 optional = false
 python-versions = "<3.12,>=3.7"
 files = [
-    {file = "pyinstaller-5.7.0-py3-none-macosx_10_13_universal2.whl", hash = "sha256:b967ae71ab7b05e18608dbb4518da5afa54f0835927cb7a5ce52ab8fffed03b6"},
-    {file = "pyinstaller-5.7.0-py3-none-manylinux2014_aarch64.whl", hash = "sha256:3180b9bf22263380adc5e2ee051b7c21463292877215bbe70c9155dc76f4b966"},
-    {file = "pyinstaller-5.7.0-py3-none-manylinux2014_i686.whl", hash = "sha256:0f80e2403e76630ad3392c71f09c1a4284e8d8a8a99fb55ff3a0aba0e06300ed"},
-    {file = "pyinstaller-5.7.0-py3-none-manylinux2014_ppc64le.whl", hash = "sha256:2c1dd9d11cfc48bab61eeb06de69a3d1ad742bbb2ef14716965ca0333dd43a5b"},
-    {file = "pyinstaller-5.7.0-py3-none-manylinux2014_s390x.whl", hash = "sha256:dfc12e92fe10ae645dd0dd1fcfa4cd7677b2e96119e3cd4980d742e09bb78925"},
-    {file = "pyinstaller-5.7.0-py3-none-manylinux2014_x86_64.whl", hash = "sha256:f35f06d48faea0ad738429c009941059beebaa306e9d9ead95f1df4b441de2aa"},
-    {file = "pyinstaller-5.7.0-py3-none-musllinux_1_1_aarch64.whl", hash = "sha256:28a8a0da656493aa32d9665e2f6f84775da0f23174859ed8facaa4226fe77a17"},
-    {file = "pyinstaller-5.7.0-py3-none-musllinux_1_1_x86_64.whl", hash = "sha256:1ac3f09b838710c43e34b0a7ad003bd168a754b0b786c561b47baf1af9104354"},
-    {file = "pyinstaller-5.7.0-py3-none-win32.whl", hash = "sha256:9cdb8ee8622ee8d2c6cd67f001b610019d4371a8bf3f7850562640ce786894d7"},
-    {file = "pyinstaller-5.7.0-py3-none-win_amd64.whl", hash = "sha256:9b47c10fbefac6f6493266f8b1689109b2b14efa9142dbd2cd7549226a4568b7"},
-    {file = "pyinstaller-5.7.0-py3-none-win_arm64.whl", hash = "sha256:3e51e18a16dec0414079762843cf892a5d70749ad56ca7b3c7b5f8367dc50b1e"},
-    {file = "pyinstaller-5.7.0.tar.gz", hash = "sha256:0e5953937d35f0b37543cc6915dacaf3239bcbdf3fd3ecbb7866645468a16775"},
+    {file = "pyinstaller-5.10.1-py3-none-macosx_10_13_universal2.whl", hash = "sha256:247b99c52dc3cf69eba905da30dbca0a8ea309e1058cab44658ac838d9b8f2f0"},
+    {file = "pyinstaller-5.10.1-py3-none-manylinux2014_aarch64.whl", hash = "sha256:2d16641a495593d174504263b038a6d3d46b3b15a381ccb216cf6cce67723512"},
+    {file = "pyinstaller-5.10.1-py3-none-manylinux2014_i686.whl", hash = "sha256:df97aaf1103a1c485aa3c9947792a86675e370f5ce9b436b4a84e34a4180c8d2"},
+    {file = "pyinstaller-5.10.1-py3-none-manylinux2014_ppc64le.whl", hash = "sha256:333b4ffda38d9c0a561c38429dd9848d37aa78f3b8ea8a6f2b2e69a60d523c02"},
+    {file = "pyinstaller-5.10.1-py3-none-manylinux2014_s390x.whl", hash = "sha256:6afc7aa4885ffd3e6121a8cf2138830099f874c18cb5869bed8c1a42db82d060"},
+    {file = "pyinstaller-5.10.1-py3-none-manylinux2014_x86_64.whl", hash = "sha256:85e39e36d03355423636907a26a9bfa06fdc93cb1086441b19d2d0ca448479fa"},
+    {file = "pyinstaller-5.10.1-py3-none-musllinux_1_1_aarch64.whl", hash = "sha256:7a1db833bb0302b66ae3ae337fbd5487699658ce869ca4d538b5359b8179e83a"},
+    {file = "pyinstaller-5.10.1-py3-none-musllinux_1_1_x86_64.whl", hash = "sha256:bb7de35cd209a0a0358aec761a273ae951d2161c03728f15d9a640d06a88e472"},
+    {file = "pyinstaller-5.10.1-py3-none-win32.whl", hash = "sha256:9e9a38f41f8280c8e29b294716992852281b41fbe64ba330ebab671efe27b26d"},
+    {file = "pyinstaller-5.10.1-py3-none-win_amd64.whl", hash = "sha256:915a502802c751bafd92d568ac57468ec6cdf252b8308aa9a167bbc2c565ad2d"},
+    {file = "pyinstaller-5.10.1-py3-none-win_arm64.whl", hash = "sha256:f677fbc151db1eb00ada94e86ed128e7b359cbd6bf3f6ea815afdde687692d46"},
+    {file = "pyinstaller-5.10.1.tar.gz", hash = "sha256:6ecc464bf56919bf2d6bff275f38d85ff08ae747b8ead3a0c26cf85573b3c723"},
 ]
 
 [package.dependencies]
@@ -763,4 +763,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8,<3.12"
-content-hash = "82d3bcdf4c5e022c5467691fbc2c1a293a8efea1561707597ba9b065d3b3bbc9"
+content-hash = "bf3d1cd8d3a617d68f425c0ebb8db9ed814587bdef46306930de74d5136f803e"
