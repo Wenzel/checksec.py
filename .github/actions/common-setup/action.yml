@@ -14,6 +14,18 @@ runs:
         with:
           python-version: ${{ inputs.python_version }}
 
+      - name: Default shell
+        run: |
+          if [ "$RUNNER_OS" == "Linux" ]; then
+                echo shellos=bash >> $GITHUB_ENV
+          elif [ "$RUNNER_OS" == "Windows" ]; then
+                echo shellos=powershell >> $GITHUB_ENV
+          else
+                echo "$RUNNER_OS not supported"
+                exit 1
+          fi
+        shell: bash
+
       - name: Install Poetry
         uses: abatilo/actions-poetry@v2
         with:
@@ -27,16 +39,16 @@ runs:
         uses: actions/cache@v3.3.1
         with:
           path: ~/.cache/pypoetry
-          key: pydeps-${{ inputs.python_version }}-${{ hashFiles('**/poetry.lock') }}
+          key: pydeps-${{ inputs.python_version }}-$ {{ env.shellos }}-${{ hashFiles('**/poetry.lock') }}
 
       # Install dependencies. `--no-root` means "install all dependencies but not the project
       # itself", which is what you want to avoid caching _your_ code. The `if` statement
       # ensures this only runs on a cache miss.
       - name: Install dependencies
         run: poetry install --no-interaction --no-root
-        shell: bash
+        shell: ${{ env.shellos }}
         if: steps.cache-deps.outputs.cache-hit != 'true'
 
       - name: Install project
         run: poetry install --no-interaction
-        shell: bash
+        shell: ${{ env.shellos }}
