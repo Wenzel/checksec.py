@@ -29,7 +29,7 @@ runs:
       - name: Install Poetry
         uses: abatilo/actions-poetry@v2
         with:
-          poetry-version: 1.4.2
+          poetry-version: 1.7.1
 
       # Cache your dependencies (i.e. all the stuff in your `pyproject.toml`). Note the cache
       # key: if you're using multiple Python versions, or multiple OSes, you'd need to include
