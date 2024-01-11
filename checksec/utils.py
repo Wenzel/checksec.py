@@ -118,17 +118,17 @@ def find_library_full(name):
     abi_type = mach_map.get(machine, "libc6")
     # Note, we search libXXX.so.XXX, not just libXXX.so (!)
     expr = re.compile(r"^\s+lib%s\.so.[^\s]+\s+\(%s.*=>\s+(.*)$" % (re.escape(name), abi_type))
-    p = subprocess.Popen(["ldconfig", "-N", "-p"], stdout=subprocess.PIPE)
     result = None
-    for line in p.stdout:
-        res = expr.match(line.decode())
-        if res is None:
-            continue
-        if result is not None:
-            raise RuntimeError("Duplicate library found for %s" % name)
-        result = res.group(1)
-    if p.wait():
-        raise RuntimeError('"ldconfig -p" failed')
+    with subprocess.Popen(["ldconfig", "-N", "-p"], stdout=subprocess.PIPE) as p:
+        for line in p.stdout:
+            res = expr.match(line.decode())
+            if res is None:
+                continue
+            if result is not None:
+                raise RuntimeError("Duplicate library found for %s" % name)
+            result = res.group(1)
+        if p.wait():
+            raise RuntimeError('"ldconfig -p" failed')
     if result is None:
         raise RuntimeError("Library %s not found" % name)
     return result
