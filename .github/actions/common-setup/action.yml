@@ -1,54 +1,54 @@
-name: 'Project setup'
-description: 'This actions will setup Python, the cache and install the dependencies'
-author: 'Mathieu Tarral'
+name: "Project setup"
+description: "This actions will setup Python, the cache and install the dependencies"
+author: "Mathieu Tarral"
 inputs:
   python_version:
-    description: 'Python version to setup'
+    description: "Python version to setup"
     required: true
-    default: '3.8'
+    default: "3.10"
 runs:
-    using: 'composite'
-    steps:
-      - name: Set up Python 🐍
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ inputs.python_version }}
+  using: "composite"
+  steps:
+    - name: Set up Python 🐍
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ inputs.python_version }}
 
-      - name: Default shell
-        run: |
-          if [ "$RUNNER_OS" == "Linux" ]; then
-                echo shellos=bash >> $GITHUB_ENV
-          elif [ "$RUNNER_OS" == "Windows" ]; then
-                echo shellos=powershell >> $GITHUB_ENV
-          else
-                echo "$RUNNER_OS not supported"
-                exit 1
-          fi
-        shell: bash
+    - name: Default shell
+      run: |
+        if [ "$RUNNER_OS" == "Linux" ]; then
+              echo shellos=bash >> $GITHUB_ENV
+        elif [ "$RUNNER_OS" == "Windows" ]; then
+              echo shellos=powershell >> $GITHUB_ENV
+        else
+              echo "$RUNNER_OS not supported"
+              exit 1
+        fi
+      shell: bash
 
-      - name: Install Poetry
-        uses: abatilo/actions-poetry@v2
-        with:
-          poetry-version: 1.7.1
+    - name: Install Poetry
+      uses: abatilo/actions-poetry@v2
+      with:
+        poetry-version: 1.7.1
 
-      # Cache your dependencies (i.e. all the stuff in your `pyproject.toml`). Note the cache
-      # key: if you're using multiple Python versions, or multiple OSes, you'd need to include
-      # them in the cache key. I'm not, so it can be simple and just depend on the poetry.lock.
-      - name: cache deps
-        id: cache-deps
-        uses: actions/cache@v3.3.1
-        with:
-          path: ~/.cache/pypoetry
-          key: pydeps-${{ inputs.python_version }}-$ {{ env.shellos }}-${{ hashFiles('**/poetry.lock') }}
+    # Cache your dependencies (i.e. all the stuff in your `pyproject.toml`). Note the cache
+    # key: if you're using multiple Python versions, or multiple OSes, you'd need to include
+    # them in the cache key. I'm not, so it can be simple and just depend on the poetry.lock.
+    - name: cache deps
+      id: cache-deps
+      uses: actions/cache@v3.3.1
+      with:
+        path: ~/.cache/pypoetry
+        key: pydeps-${{ inputs.python_version }}-$ {{ env.shellos }}-${{ hashFiles('**/poetry.lock') }}
 
-      # Install dependencies. `--no-root` means "install all dependencies but not the project
-      # itself", which is what you want to avoid caching _your_ code. The `if` statement
-      # ensures this only runs on a cache miss.
-      - name: Install dependencies
-        run: poetry install --no-interaction --no-root
-        shell: ${{ env.shellos }}
-        if: steps.cache-deps.outputs.cache-hit != 'true'
+    # Install dependencies. `--no-root` means "install all dependencies but not the project
+    # itself", which is what you want to avoid caching _your_ code. The `if` statement
+    # ensures this only runs on a cache miss.
+    - name: Install dependencies
+      run: poetry install --no-interaction --no-root
+      shell: ${{ env.shellos }}
+      if: steps.cache-deps.outputs.cache-hit != 'true'
 
-      - name: Install project
-        run: poetry install --no-interaction
-        shell: ${{ env.shellos }}
+    - name: Install project
+      run: poetry install --no-interaction
+      shell: ${{ env.shellos }}
