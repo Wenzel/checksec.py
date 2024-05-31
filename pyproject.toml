@@ -1,10 +1,10 @@
 [tool.poetry]
 name = "checksec-py"
-version = "0.7.1"
+version = "0.7.3"
 description = "Checksec tool implemented in Python"
 authors = ["Mathieu Tarral <mathieu.tarral@protonmail.com>"]
 readme = "README.md"
-packages = [{include = "checksec"}]
+packages = [{ include = "checksec" }]
 license = "GPL-3.0-only"
 repository = "https://github.com/Wenzel/checksec.py"
 keywords = ["checksec", "security", "ELF", "PE", "binary"]
