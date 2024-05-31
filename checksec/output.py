@@ -4,13 +4,15 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import List, Union
 
-from lief.PE import MACHINE_TYPES
+from lief.PE import Header
 from rich.console import Console
 from rich.progress import BarColumn, Progress, TextColumn
 from rich.table import Table
 
 from checksec.elf import ELFChecksecData, PIEType, RelroType
 from checksec.pe import PEChecksecData
+
+MACHINE_TYPES = Header.MACHINE_TYPES
 
 
 class AbstractChecksecOutput(ABC):

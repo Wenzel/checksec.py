@@ -14,10 +14,10 @@ checksec = 'checksec.__main__:entrypoint'
 
 [tool.poetry.dependencies]
 python = ">=3.10,<3.13"
-lief = "0.13.0"
+lief = "0.14.1"
 docopt = "0.6.2"
-rich = "13.3.5"
-pylddwrap = "1.0.1"
+rich = "^13.4"
+pylddwrap = "^1.0"
 
 [tool.poetry.dev-dependencies]
 flake8 = "5.0.4"
