@@ -2,9 +2,13 @@ from collections import namedtuple
 from pathlib import Path
 
 import lief
-from lief.PE import DLL_CHARACTERISTICS, HEADER_CHARACTERISTICS, MACHINE_TYPES, Signature
+from lief.PE import Header, OptionalHeader, Signature
 
 from .binary import BinarySecurity
+
+DLL_CHARACTERISTICS = OptionalHeader.DLL_CHARACTERISTICS
+HEADER_CHARACTERISTICS = Header.CHARACTERISTICS
+MACHINE_TYPES = Header.MACHINE_TYPES
 
 PEChecksecData = namedtuple(
     "PEChecksecData",
@@ -113,8 +117,10 @@ class PESecurity(BinarySecurity):
 
     @property
     def checksec_state(self) -> PEChecksecData:
+        machine: MACHINE_TYPES = self.bin.header.machine
+        machine_int = machine.value
         return PEChecksecData(
-            machine=self.bin.header.machine,
+            machine=machine_int,
             nx=self.has_nx,
             canary=self.has_canary,
             aslr=self.is_aslr,
