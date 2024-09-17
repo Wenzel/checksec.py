@@ -11,7 +11,7 @@ import lddwrap
 
 # cannot use is_elf because of circular dependency
 import lief
-from lief.logging import LOGGING_LEVEL as lief_loglvl
+from lief.logging import LEVEL as lief_loglvl
 
 
 class LibcNotFoundError(Exception):
@@ -33,7 +33,7 @@ PY_LOG_TO_LIEF_LOG: Dict[int, lief_loglvl] = {
     0: lief_loglvl.TRACE,
     logging.DEBUG: lief_loglvl.DEBUG,
     logging.INFO: lief_loglvl.INFO,
-    logging.WARNING: lief_loglvl.WARNING,
+    logging.WARNING: lief_loglvl.WARN,
     logging.ERROR: lief_loglvl.ERROR,
     logging.CRITICAL: lief_loglvl.CRITICAL,
 }

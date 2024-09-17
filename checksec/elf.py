@@ -6,7 +6,6 @@ from pathlib import Path
 from typing import FrozenSet, List, Optional
 
 import lief
-from lief.ELF import E_TYPE
 
 from .binary import BinarySecurity
 from .errors import ErrorParsingFailed
@@ -118,20 +117,20 @@ class ELFSecurity(BinarySecurity):
 
     @property
     def relro(self) -> RelroType:
-        if self.bin.get(lief.ELF.SEGMENT_TYPES.GNU_RELRO) is None:
+        if self.bin.get(lief.ELF.Segment.TYPE.GNU_RELRO) is None:
             return RelroType.No
 
-        flags = self.bin.get(lief.ELF.DYNAMIC_TAGS.FLAGS)
+        flags = self.bin.get(lief.ELF.DynamicEntry.TAG.FLAGS)
         if flags is None:
             bind_now = False
         else:
-            bind_now = lief.ELF.DYNAMIC_FLAGS.BIND_NOW in flags
+            bind_now = flags.has(lief.ELF.DynamicEntryFlags.FLAG.BIND_NOW)
 
-        flags_1 = self.bin.get(lief.ELF.DYNAMIC_TAGS.FLAGS_1)
+        flags_1 = self.bin.get(lief.ELF.DynamicEntry.TAG.FLAGS_1)
         if flags_1 is None:
             now = False
         else:
-            now = lief.ELF.DYNAMIC_FLAGS_1.NOW in flags_1
+            now = flags_1.has(lief.ELF.DynamicEntryFlags.FLAG.NOW)
 
         if bind_now or now:
             return RelroType.Full
@@ -151,44 +150,38 @@ class ELFSecurity(BinarySecurity):
 
     @property
     def pie(self) -> PIEType:
-        if self.bin.header.file_type == E_TYPE.DYNAMIC:
-            if self.bin.has(lief.ELF.DYNAMIC_TAGS.DEBUG):
+        if self.bin.header.file_type == lief.ELF.Header.FILE_TYPE.DYN:
+            if self.bin.has(lief.ELF.DynamicEntry.TAG.DEBUG_TAG):
                 return PIEType.PIE
             else:
                 return PIEType.DSO
-        elif self.bin.header.file_type == E_TYPE.RELOCATABLE:
+        elif self.bin.header.file_type == lief.ELF.Header.FILE_TYPE.REL:
             return PIEType.REL
         return PIEType.No
 
     @property
     def has_rpath(self) -> bool:
-        try:
-            if self.bin.get(lief.ELF.DYNAMIC_TAGS.RPATH):
-                return True
-        except lief.not_found:
-            pass
+        if self.bin.get(lief.ELF.DynamicEntry.TAG.RPATH):
+            return True
         return False
 
     @property
     def has_runpath(self) -> bool:
-        try:
-            if self.bin.get(lief.ELF.DYNAMIC_TAGS.RUNPATH):
-                return True
-        except lief.not_found:
-            pass
+        if self.bin.get(lief.ELF.DynamicEntry.TAG.RUNPATH):
+            return True
         return False
 
     @property
     @lru_cache()
     def symbols(self) -> List[str]:
-        return [symbol.name for symbol in self.bin.static_symbols]
+        return [symbol.name for symbol in self.bin.symtab_symbols]
 
     @property
     def is_stripped(self) -> bool:
-        # TODO: hwo to reset static_symbols iterator for the next call to symbols() ?
+        # TODO: how to reset symtab_symbols iterator for the next call to symbols() ?
         # consumes only the first symbol from iterator, saving CPU cycles
         try:
-            next(self.bin.static_symbols)
+            next(self.bin.symtab_symbols)
         except StopIteration:
             return True
         else:
