@@ -8,6 +8,7 @@ Options:
     -w WORKERS --workers=WORKERS    Specify the number of process pool workers [default: 4]
     -j --json                       Display results as JSON
     -s LIBC --set-libc=LIBC         Specify LIBC library to use to check for fortify scores (ELF)
+    -i --ignore-symlinks            Ignore symlinks to files
     -d --debug                      Enable debug output
     -h --help                       Display this message
 """
@@ -27,15 +28,23 @@ from .pe import PEChecksecData, PESecurity, is_pe
 from .utils import lief_set_logging
 
 
-def walk_filepath_list(filepath_list: List[Path], recursive: bool = False) -> Iterator[Path]:
+def walk_filepath_list(filepath_list: List[Path], recursive: bool = False, ignore_symlinks: bool = False) \
+            -> Iterator[Path]:
+    def error_handler(exception):
+        # Fail loudly
+        raise exception
+
     for path in filepath_list:
         if path.is_dir() and not path.is_symlink():
-            if recursive:
-                for f in os.scandir(path):
-                    yield from walk_filepath_list([Path(f)], recursive)
-            else:
-                yield from (Path(f) for f in os.scandir(path))
-        elif path.is_file():
+            for root, _, filenames in os.walk(path, onerror=error_handler):
+                yield from walk_filepath_list(
+                        list(map(lambda x: Path(root).joinpath(x), filenames)),
+                        recursive,
+                        ignore_symlinks
+                        )
+                if not recursive:
+                    break
+        elif path.is_file() and (not ignore_symlinks or not path.is_symlink()):
             yield path
 
 
@@ -72,6 +81,7 @@ def main(args):
     json = args["--json"]
     recursive = args["--recursive"]
     libc_path = args["--set-libc"]
+    ignore_symlinks = args["--ignore-symlinks"]
 
     # logging
     formatter = "%(asctime)s %(levelname)s:%(name)s:%(message)s"
@@ -107,7 +117,7 @@ def main(args):
             # we need to consume the iterator once to get the total
             # for the progress bar
             check_output.enumerating_tasks_start()
-            count = sum(1 for i in walk_filepath_list(filepath_list, recursive))
+            count = sum(1 for i in walk_filepath_list(filepath_list, recursive, ignore_symlinks))
             check_output.enumerating_tasks_stop(count)
             with ProcessPoolExecutor(
                 max_workers=workers, initializer=worker_initializer, initargs=(libc_path,)
@@ -116,7 +126,7 @@ def main(args):
                     check_output.processing_tasks_start()
                     future_to_checksec = {
                         pool.submit(checksec_file, filepath): filepath
-                        for filepath in walk_filepath_list(filepath_list, recursive)
+                        for filepath in walk_filepath_list(filepath_list, recursive, ignore_symlinks)
                     }
                     for future in as_completed(future_to_checksec):
                         filepath = future_to_checksec[future]
