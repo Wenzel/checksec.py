@@ -30,11 +30,14 @@ from .utils import lief_set_logging
 def walk_filepath_list(filepath_list: List[Path], recursive: bool = False) -> Iterator[Path]:
     for path in filepath_list:
         if path.is_dir() and not path.is_symlink():
-            if recursive:
-                for f in os.scandir(path):
-                    yield from walk_filepath_list([Path(f)], recursive)
-            else:
-                yield from (Path(f) for f in os.scandir(path))
+            try:
+                if recursive:
+                    for f in os.scandir(path):
+                        yield from walk_filepath_list([Path(f)], recursive)
+                else:
+                    yield from (Path(f) for f in os.scandir(path))
+            except OSError:
+                continue
         elif path.is_file():
             yield path
 
