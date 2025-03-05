@@ -36,7 +36,7 @@ runs:
     # them in the cache key. I'm not, so it can be simple and just depend on the poetry.lock.
     - name: cache deps
       id: cache-deps
-      uses: actions/cache@v3.3.1
+      uses: actions/cache@v4
       with:
         path: ~/.cache/pypoetry
         key: pydeps-${{ inputs.python_version }}-$ {{ env.shellos }}-${{ hashFiles('**/poetry.lock') }}
