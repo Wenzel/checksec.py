@@ -19,7 +19,12 @@ class BinarySecurity(ABC):
 
     @property
     def has_nx(self) -> bool:
-        return self.bin.has_nx
+        # Handle ELF binary with no program segments (e.g., Kernel modules)
+        # In this case, return True
+        if isinstance(self.bin, lief.ELF.Binary) and len(self.bin.segments) == 0:
+            return True
+        else:
+            return self.bin.has_nx
 
     @property
     def checksec_state(self) -> Union["ELFChecksecData", "PEChecksecData"]:
