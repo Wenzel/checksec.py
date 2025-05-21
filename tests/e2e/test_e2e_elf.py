@@ -22,7 +22,7 @@ def test_bool_prop(prop: str, is_enabled: bool):
 
 @pytest.mark.parametrize("relro_type", list(RelroType))
 def test_relro(relro_type: RelroType):
-    """Test that relro type is No/Partial/Full"""
+    """Test that relro type is No/Partial/Full/NA"""
     bin_path = ELF_BINARIES / f"relro_{relro_type.name.lower()}"
     chk_data = run_checksec(bin_path)
     assert chk_data[str(bin_path)]["relro"] == relro_type.name
@@ -37,7 +37,7 @@ def test_relro_full_df1():
 
 @pytest.mark.parametrize("pie_type", list(PIEType))
 def test_pie(pie_type):
-    """Test that PIE is No/Partial/Full"""
+    """Test that PIE is No/Partial/Full/NA"""
     bin_path = ELF_BINARIES / f"pie_{pie_type.name.lower()}"
     chk_data = run_checksec(bin_path)
     assert chk_data[str(bin_path)]["pie"] == pie_type.name

@@ -70,6 +70,7 @@ class RelroType(Enum):
     No = 1
     Partial = 2
     Full = 3
+    NA = 4
 
 
 class PIEType(Enum):
@@ -117,6 +118,11 @@ class ELFSecurity(BinarySecurity):
 
     @property
     def relro(self) -> RelroType:
+        # Handle binary with no program segments (e.g., Kernel modules)
+        # In this case, return NA
+        if len(self.bin.segments) == 0:
+            return RelroType.NA
+
         if self.bin.get(lief.ELF.Segment.TYPE.GNU_RELRO) is None:
             return RelroType.No
 
