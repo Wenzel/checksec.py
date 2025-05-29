@@ -86,72 +86,72 @@ jobs:
       - name: Run tests
         run: poetry run poe test_e2e
 
-  release:
-    needs: test
+  # release:
+  #   needs: test
 
-    runs-on: ubuntu-latest
-    outputs:
-      upload_url: ${{ steps.step_upload_url.outputs.upload_url }}
-      version: ${{ steps.get_version.outputs.version }}
+  #   runs-on: ubuntu-latest
+  #   outputs:
+  #     upload_url: ${{ steps.step_upload_url.outputs.upload_url }}
+  #     version: ${{ steps.get_version.outputs.version }}
 
-    # push on master and tag is 'v*'
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
-    steps:
-      - uses: actions/checkout@v3
-      - name: Get the version
-        id: get_version
-        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+  #   # push on master and tag is 'v*'
+  #   if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - name: Get the version
+  #       id: get_version
+  #       run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
 
-      - name: Create a Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ steps.get_version.outputs.version }}
-          release_name: ${{ steps.get_version.outputs.version }}
+  #     - name: Create a Release
+  #       id: create_release
+  #       uses: actions/create-release@v1
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #       with:
+  #         tag_name: ${{ steps.get_version.outputs.version }}
+  #         release_name: ${{ steps.get_version.outputs.version }}
 
-      - id: step_upload_url
-        run: echo "::set-output name=upload_url::${{ steps.create_release.outputs.upload_url }}"
+  #     - id: step_upload_url
+  #       run: echo "::set-output name=upload_url::${{ steps.create_release.outputs.upload_url }}"
 
-  release_windows:
-    needs: [build_windows, release]
-    runs-on: windows-latest
+  # release_windows:
+  #   needs: [build_windows, release]
+  #   runs-on: windows-latest
 
-    steps:
-      # the deploy action below depends on a checkout of the repo
-      # otherwise it fails trying to remote the 'origin' remote
-      # https://github.com/JamesIves/github-pages-deploy-action/issues/335
-      - uses: actions/checkout@v3
+  #   steps:
+  #     # the deploy action below depends on a checkout of the repo
+  #     # otherwise it fails trying to remote the 'origin' remote
+  #     # https://github.com/JamesIves/github-pages-deploy-action/issues/335
+  #     - uses: actions/checkout@v3
 
-      # download artifacts
-      - uses: actions/download-artifact@v4
-        with:
-          name: checksec.exe
+  #     # download artifacts
+  #     - uses: actions/download-artifact@v4
+  #       with:
+  #         name: checksec.exe
 
-      - name: Upload a Release Asset
-        uses: actions/upload-release-asset@v1.0.2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.release.outputs.upload_url }}
-          asset_path: checksec.exe
-          asset_name: checksec.exe
-          asset_content_type: vnd.microsoft.portable-executable
+  #     - name: Upload a Release Asset
+  #       uses: actions/upload-release-asset@v1.0.2
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #       with:
+  #         upload_url: ${{ needs.release.outputs.upload_url }}
+  #         asset_path: checksec.exe
+  #         asset_name: checksec.exe
+  #         asset_content_type: vnd.microsoft.portable-executable
 
-  publish:
-    needs: release
-    runs-on: ubuntu-latest
+  # publish:
+  #   needs: release
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v3
+  #   steps:
+  #     - uses: actions/checkout@v3
 
-      - uses: ./.github/actions/common-setup
+  #     - uses: ./.github/actions/common-setup
 
-      - name: Build package
-        run: poetry build
+  #     - name: Build package
+  #       run: poetry build
 
-      - name: Publish on PyPI 🚀
-        run: poetry publish
-        env:
-          POETRY_PYPI_TOKEN_PYPI: ${{ secrets.ACCESS_TOKEN }}
+  #     - name: Publish on PyPI 🚀
+  #       run: poetry publish
+  #       env:
+  #         POETRY_PYPI_TOKEN_PYPI: ${{ secrets.ACCESS_TOKEN }}
