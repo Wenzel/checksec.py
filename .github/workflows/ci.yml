@@ -86,33 +86,33 @@ jobs:
       - name: Run tests
         run: poetry run poe test_e2e
 
-  # release:
-  #   needs: test
+  release:
+    needs: test
 
-  #   runs-on: ubuntu-latest
-  #   outputs:
-  #     upload_url: ${{ steps.step_upload_url.outputs.upload_url }}
-  #     version: ${{ steps.get_version.outputs.version }}
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.step_upload_url.outputs.upload_url }}
+      version: ${{ steps.get_version.outputs.version }}
 
-  #   # push on master and tag is 'v*'
-  #   if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
-  #   steps:
-  #     - uses: actions/checkout@v4.2.2
-  #     - name: Get the version
-  #       id: get_version
-  #       run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+    # push on master and tag is 'v*'
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - uses: actions/checkout@v4.2.2
+      - name: Get the version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
 
-  #     - name: Create a Release
-  #       id: create_release
-  #       uses: actions/create-release@v1
-  #       env:
-  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  #       with:
-  #         tag_name: ${{ steps.get_version.outputs.version }}
-  #         release_name: ${{ steps.get_version.outputs.version }}
+      - name: Create a Release
+        id: create_release
+        uses: actions/create-release@v1.1.4
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.get_version.outputs.version }}
+          release_name: ${{ steps.get_version.outputs.version }}
 
-  #     - id: step_upload_url
-  #       run: echo "::set-output name=upload_url::${{ steps.create_release.outputs.upload_url }}"
+      - id: step_upload_url
+        run: echo "::set-output name=upload_url::${{ steps.create_release.outputs.upload_url }}"
 
   # release_windows:
   #   needs: [build_windows, release]
