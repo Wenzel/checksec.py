@@ -46,7 +46,7 @@ jobs:
 
       - uses: ./.github/actions/common-setup
         with:
-          python_version: 3.11
+          python_version: 3.13.3
 
       - name: Add entrypoint to bypass issue with relative imports in PyInstaller
         run: powershell -Command 'Invoke-WebRequest https://gist.githubusercontent.com/Wenzel/e38d227d94f16e026b3aed03ea6a6661/raw/383ec56d62c58e444f6c5962ee6940a5c583d341/stub.py -OutFile stub.py'
