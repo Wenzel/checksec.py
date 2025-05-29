@@ -14,7 +14,7 @@ checksec = 'checksec.__main__:entrypoint'
 
 [tool.poetry.dependencies]
 python = ">=3.10,<=3.13.3"
-lief = "0.15.1"
+lief = "0.16.6"
 docopt = "0.6.2"
 rich = "^13.4"
 pylddwrap = "^1.0"
