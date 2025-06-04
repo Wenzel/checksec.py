@@ -1,6 +1,6 @@
 version: 2
 updates:
-  - package-ecosystem: "pip" # See documentation for possible values
+  - package-ecosystem: "docker" # See documentation for possible values
     directory: "/" # Location of package manifests
     schedule:
       # Check for updates to GitHub Actions every weekday
@@ -9,10 +9,13 @@ updates:
     groups:
       # Specify a name for the group, which will be used in pull request titles
       # and branch names
-      pip-dependencies:
+      docker-dependencies:
         # Define patterns to include dependencies in the group (based on
         # dependency name)
         applies-to: version-updates # Applies the group rule to version updates
+        patterns:
+          - "*"       # A wildcard that matches all dependencies in the package
+                      # ecosystem. Note: using "*" may open a large pull request
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
@@ -26,3 +29,6 @@ updates:
         # Define patterns to include dependencies in the group (based on
         # dependency name)
         applies-to: version-updates # Applies the group rule to version updates
+        patterns:
+          - "*"       # A wildcard that matches all dependencies in the package
+                      # ecosystem. Note: using "*" may open a large pull request
