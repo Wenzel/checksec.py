@@ -1,6 +1,6 @@
 version: 2
 updates:
-  - package-ecosystem: "docker" # See documentation for possible values
+  - package-ecosystem: "pip" # See documentation for possible values
     directory: "/" # Location of package manifests
     schedule:
       # Check for updates to GitHub Actions every weekday
@@ -9,7 +9,7 @@ updates:
     groups:
       # Specify a name for the group, which will be used in pull request titles
       # and branch names
-      docker-dependencies:
+      pip-dependencies:
         # Define patterns to include dependencies in the group (based on
         # dependency name)
         applies-to: version-updates # Applies the group rule to version updates
