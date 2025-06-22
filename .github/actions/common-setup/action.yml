@@ -5,12 +5,12 @@ inputs:
   python_version:
     description: "Python version to setup"
     required: true
-    default: "3.10"
+    default: "3.13"
 runs:
   using: "composite"
   steps:
     - name: Set up Python 🐍
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5.6.0
       with:
         python-version: ${{ inputs.python_version }}
 
@@ -36,10 +36,10 @@ runs:
     # them in the cache key. I'm not, so it can be simple and just depend on the poetry.lock.
     - name: cache deps
       id: cache-deps
-      uses: actions/cache@v4
+      uses: actions/cache@v4.2.3
       with:
         path: ~/.cache/pypoetry
-        key: pydeps-${{ inputs.python_version }}-$ {{ env.shellos }}-${{ hashFiles('**/poetry.lock') }}
+        key: pydeps-${{ inputs.python_version }}-${{ env.shellos }}-${{ hashFiles('**/poetry.lock') }}
 
     # Install dependencies. `--no-root` means "install all dependencies but not the project
     # itself", which is what you want to avoid caching _your_ code. The `if` statement
