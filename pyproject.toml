@@ -19,7 +19,7 @@ docopt = "0.6.2"
 rich = "^14.0.0"
 pylddwrap = "^1.2.2"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 flake8 = "5.0.4"
 flake8-bugbear = "21.11.29"
 isort = "6.0.1"
