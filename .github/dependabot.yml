@@ -5,7 +5,7 @@ updates:
   commit-message:
     prefix: "pip"
     prefix-development: "pip-dev"
-  labels: [ 'chore ' ]
+  labels: [ 'chore' ]
   reviewers:
   - "Wenzel"
   schedule:
@@ -27,7 +27,7 @@ updates:
   directory: "/"
   commit-message:
     prefix: "actions"
-  labels: [ 'chore ' ]
+  labels: [ 'chore' ]
   reviewers:
   - "Wenzel"
   schedule:
