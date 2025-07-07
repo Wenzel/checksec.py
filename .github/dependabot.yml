@@ -23,8 +23,6 @@ updates:
       patterns:
       - "*"
       dependency-type: production
-  allow:
-  - dependency-type: all
 - package-ecosystem: "github-actions"
   directory: "/"
   commit-message:
