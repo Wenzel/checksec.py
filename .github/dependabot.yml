@@ -1,34 +1,43 @@
 version: 2
 updates:
-  - package-ecosystem: "pip" # See documentation for possible values
-    directory: "/" # Location of package manifests
-    schedule:
-      # Check for updates to GitHub Actions every weekday
-      interval: "cron"
-      cronjob: "0 18 * * *"
-    groups:
-      # Specify a name for the group, which will be used in pull request titles
-      # and branch names
-      pip-dependencies:
-        # Define patterns to include dependencies in the group (based on
-        # dependency name)
-        applies-to: version-updates # Applies the group rule to version updates
-        patterns:
-          - "*"       # A wildcard that matches all dependencies in the package
-                      # ecosystem. Note: using "*" may open a large pull request
-  - package-ecosystem: "github-actions"
-    directory: "/"
-    schedule:
-      # Check for updates to GitHub Actions every weekday
-      interval: "cron"
-      cronjob: "0 18 * * *"
-    groups:
-      # Specify a name for the group, which will be used in pull request titles
-      # and branch names
-      actions-dependencies:
-        # Define patterns to include dependencies in the group (based on
-        # dependency name)
-        applies-to: version-updates # Applies the group rule to version updates
-        patterns:
-          - "*"       # A wildcard that matches all dependencies in the package
-                      # ecosystem. Note: using "*" may open a large pull request
+- package-ecosystem: "pip"
+  directory: "/"
+  commit-message:
+    prefix: "pip"
+    prefix-development: "pip-dev"
+  labels: [ 'chore ' ]
+  reviewers:
+  - "Wenzel"
+  schedule:
+    interval: "cron"
+    cronjob: "0 7 * * *"
+    timezone: "Europe/Paris"
+  groups:
+    pip-dev-dependencies:
+      applies-to: version-updates
+      patterns:
+      - "*"
+      dependency-type: development
+    pip-prod-dependencies:
+      applies-to: version-updates
+      patterns:
+      - "*"
+      dependency-type: production
+  allow:
+  - dependency-type: all
+- package-ecosystem: "github-actions"
+  directory: "/"
+  commit-message:
+    prefix: "actions"
+  labels: [ 'chore ' ]
+  reviewers:
+  - "Wenzel"
+  schedule:
+    interval: "cron"
+    cronjob: "0 7 * * *"
+    timezone: "Europe/Paris"
+  groups:
+    actions-dependencies:
+      applies-to: version-updates
+      patterns:
+      - "*"
