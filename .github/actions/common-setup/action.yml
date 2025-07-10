@@ -34,21 +34,12 @@ runs:
     # Cache your dependencies (i.e. all the stuff in your `pyproject.toml`). Note the cache
     # key: if you're using multiple Python versions, or multiple OSes, you'd need to include
     # them in the cache key. I'm not, so it can be simple and just depend on the poetry.lock.
-    - name: Cache Linux deps
-      if: startsWith(runner.os, 'Linux')
-      id: cache-deps-linux
+    - name: cache deps
+      id: cache-deps
       uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
       with:
         path: ~/.cache/pypoetry
-        key: pydeps-${{ inputs.python_version }}-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
-
-    - name: Cache Windows deps
-      if: startsWith(runner.os, 'Windows')
-      id: cache-deps-windows
-      uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
-      with:
-        path: ~/Library/Caches/pypoetry
-        key: pydeps-${{ inputs.python_version }}-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+        key: pydeps-${{ inputs.python_version }}-${{ env.shellos }}-${{ hashFiles('**/poetry.lock') }}
 
     # Install dependencies. `--no-root` means "install all dependencies but not the project
     # itself", which is what you want to avoid caching _your_ code. The `if` statement
