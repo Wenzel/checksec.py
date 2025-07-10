@@ -9,6 +9,9 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Install Poetry
+        run: |
+          pipx install poetry==2.1.3
     - name: Set up Python 🐍
       uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
       with:
@@ -26,11 +29,6 @@ runs:
               exit 1
         fi
       shell: bash
-
-    - name: Install Poetry
-      uses: abatilo/actions-poetry@65c61eae400c65c9510a584af85138c1ae19bbc0 # v3.0.2
-      with:
-        poetry-version: 2.1.3
     
     # Install dependencies. `--no-root` means "install all dependencies but not the project
     # itself", which is what you want to avoid caching _your_ code. The `if` statement
