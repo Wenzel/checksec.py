@@ -6,7 +6,7 @@ updates:
     prefix: "pip"
     prefix-development: "pip-dev"
   labels: [ 'chore' ]
-  reviewers:
+  assignees:
   - "Wenzel"
   schedule:
     interval: "cron"
@@ -28,7 +28,7 @@ updates:
   commit-message:
     prefix: "actions"
   labels: [ 'chore' ]
-  reviewers:
+  assignees:
   - "Wenzel"
   schedule:
     interval: "cron"
