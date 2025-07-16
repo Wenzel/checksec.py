@@ -1,0 +1,41 @@
+version: 2
+updates:
+- package-ecosystem: "pip"
+  directory: "/"
+  commit-message:
+    prefix: "pip"
+    prefix-development: "pip-dev"
+  labels: [ 'chore' ]
+  assignees:
+  - "Wenzel"
+  schedule:
+    interval: "cron"
+    cronjob: "0 7 * * *"
+    timezone: "Europe/Paris"
+  groups:
+    pip-dev-dependencies:
+      applies-to: version-updates
+      patterns:
+      - "*"
+      dependency-type: development
+    pip-prod-dependencies:
+      applies-to: version-updates
+      patterns:
+      - "*"
+      dependency-type: production
+- package-ecosystem: "github-actions"
+  directory: "/"
+  commit-message:
+    prefix: "actions"
+  labels: [ 'chore' ]
+  assignees:
+  - "Wenzel"
+  schedule:
+    interval: "cron"
+    cronjob: "0 7 * * *"
+    timezone: "Europe/Paris"
+  groups:
+    actions-dependencies:
+      applies-to: version-updates
+      patterns:
+      - "*"
