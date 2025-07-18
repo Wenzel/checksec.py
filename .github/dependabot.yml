@@ -17,11 +17,17 @@ updates:
       applies-to: version-updates
       patterns:
       - "*"
+      update-types:
+      - "minor"
+      - "patch"
       dependency-type: development
     pip-prod-dependencies:
       applies-to: version-updates
       patterns:
       - "*"
+      update-types:
+      - "minor"
+      - "patch"
       dependency-type: production
 - package-ecosystem: "github-actions"
   directory: "/"
