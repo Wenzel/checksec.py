@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "checksec-py"
-version = "0.7.4"
+version = "0.7.5"
 description = "Checksec tool implemented in Python"
 authors = ["Mathieu Tarral <mathieu.tarral@protonmail.com>"]
 readme = "README.md"
