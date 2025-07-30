@@ -13,41 +13,42 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Install Poetry
-      run: pipx install poetry==${{ inputs.poetry_version }}
-      shell: bash
+  - name: Install Poetry
+    run: pipx install poetry==${{ inputs.poetry_version }}
+    shell: bash
 
-    - name: Set up Python 🐍
-      uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
-      with:
-        python-version: ${{ inputs.python_version }}
-        cache: poetry
-        cache-dependency-path: poetry.lock
+  - name: Set up Python 🐍
+    id: setup-python
+    uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+    with:
+      python-version: ${{ inputs.python_version }}
+      cache: poetry
+      cache-dependency-path: poetry.lock
 
-    - name: Set Poetry environment
-      run: poetry env use ${{ inputs.python_version }}
-      shell: bash
+  - name: Set Poetry environment
+    run: poetry env use ${{ inputs.python_version }}
+    shell: bash
 
-    - name: Default shell
-      run: |
-        if [ "$RUNNER_OS" == "Linux" ]; then
-              echo shellos=bash >> $GITHUB_ENV
-        elif [ "$RUNNER_OS" == "Windows" ]; then
-              echo shellos=powershell >> $GITHUB_ENV
-        else
-              echo "$RUNNER_OS not supported"
-              exit 1
-        fi
-      shell: bash
-    
-    # Install dependencies. `--no-root` means "install all dependencies but not the project
-    # itself", which is what you want to avoid caching _your_ code. The `if` statement
-    # ensures this only runs on a cache miss.
-    - name: Install dependencies
-      run: poetry install --no-interaction --no-root
-      shell: ${{ env.shellos }}
-      if: steps.cache-deps.outputs.cache-hit != 'true'
+  - name: Default shell
+    run: |
+      if [ "$RUNNER_OS" == "Linux" ]; then
+            echo shellos=bash >> $GITHUB_ENV
+      elif [ "$RUNNER_OS" == "Windows" ]; then
+            echo shellos=powershell >> $GITHUB_ENV
+      else
+            echo "$RUNNER_OS not supported"
+            exit 1
+      fi
+    shell: bash
 
-    - name: Install project
-      run: poetry install --no-interaction
-      shell: ${{ env.shellos }}
+  # Install dependencies. `--no-root` means "install all dependencies but not the project
+  # itself", which is what you want to avoid caching _your_ code. The `if` statement
+  # ensures this only runs on a cache miss.
+  - name: Install dependencies
+    run: poetry install --no-interaction --no-root
+    shell: ${{ env.shellos }}
+    if: steps.setup-python.outputs.cache-hit != 'true'
+
+  - name: Install project
+    run: poetry install --no-interaction
+    shell: ${{ env.shellos }}
