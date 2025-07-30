@@ -41,14 +41,6 @@ runs:
       fi
     shell: bash
 
-  # Install dependencies. `--no-root` means "install all dependencies but not the project
-  # itself", which is what you want to avoid caching _your_ code. The `if` statement
-  # ensures this only runs on a cache miss.
-  - name: Install dependencies
-    run: poetry install --no-interaction --no-root
-    shell: ${{ env.shellos }}
-    if: steps.setup-python.outputs.cache-hit != 'true'
-
   - name: Install project
     run: poetry install --no-interaction
     shell: ${{ env.shellos }}
