@@ -41,6 +41,8 @@ runs:
       fi
     shell: bash
 
+  # The 'setup-python' action with 'cache: poetry' installs dependencies but not the project
+  # itself. This step installs the project package into the created virtual environment.
   - name: Install project
     run: poetry install --no-interaction
     shell: ${{ env.shellos }}
