@@ -45,7 +45,6 @@ def get_libc(libc_path: Optional[Path] = None) -> Optional["Libc"]:
     # Note: this weird function is designed as a poor singleton lru_cache wasn't possible, since get_libc(path) and
     # get_libc(None) should return the same data once the first call has been made we need to maintain a global
     # object as we can't pass the Libc object to ELFSecurity, as LIEF's objects are not picklable
-    global __LIBC_OBJ
     try:
         __LIBC_OBJ["libc"]
     except KeyError:
