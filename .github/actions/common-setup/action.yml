@@ -44,5 +44,5 @@ runs:
       key: venv-${{ hashFiles('poetry.lock') }}-py${{ inputs.python_version }}-${{ env.shellos }}
 
   - name: Install project
-    run: poetry install
+    run: poetry install --no-interaction
     shell: ${{ env.shellos }}
