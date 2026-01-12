@@ -21,6 +21,7 @@ runs:
     with:
       python-version: ${{ inputs.python_version }}
       pip-install: poetry
+      cache: 'pip'
 
   - name: Setup a local virtual environment (if no poetry.toml file)
     run: |
