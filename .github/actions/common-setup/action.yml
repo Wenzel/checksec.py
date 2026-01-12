@@ -6,7 +6,6 @@ inputs:
     description: "Python version to setup"
     required: true
     default: "3.13"
-
 runs:
   using: "composite"
   steps:
