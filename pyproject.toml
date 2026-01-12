@@ -21,7 +21,7 @@ pylddwrap = "^1.2.2"
 
 [tool.poetry.group.dev.dependencies]
 flake8 = "7.3.0"
-flake8-bugbear = "21.11.29"
+flake8-bugbear = "^25.11.29"
 isort = "6.0.1"
 black = "25.1.0"
 mypy = "1.16.1"
