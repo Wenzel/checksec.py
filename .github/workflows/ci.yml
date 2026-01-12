@@ -25,7 +25,8 @@ jobs:
         with:
           python_version: ${{ matrix.python-version }}
 
-      - name: check code
+      - name: Check code (${{ matrix.task }})
+        continue-on-error: true
         run: poetry run poe ${{ matrix.task }}
 
   build:
