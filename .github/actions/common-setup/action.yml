@@ -41,10 +41,10 @@ runs:
     shell: bash
 
   - uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
-    name: Cache definition (Python ${{ inputs.python_version }}, {{ env.shellos }})
+    name: Cache definition (Python ${{ inputs.python_version }}, ${{ env.shellos }})
     with:
       path: ./.venv
-      key: venv-${{ hashFiles('poetry.lock') }}-py${{ inputs.python_version }}-{{ env.shellos }}
+      key: venv-${{ hashFiles('poetry.lock') }}-py${{ inputs.python_version }}-${{ env.shellos }}
 
   # The 'setup-python' action with 'cache: poetry' installs dependencies but not the project
   # itself. This step installs the project package into the created virtual environment.
