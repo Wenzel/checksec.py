@@ -19,7 +19,7 @@ runs:
       pip-install: poetry
       cache: 'pip'
 
-  - name: Setup a local virtual environment (if no poetry.toml file)
+  - name: Setup a local virtual environment
     run: |
       poetry config virtualenvs.create true --local
       poetry config virtualenvs.in-project true --local
@@ -38,11 +38,13 @@ runs:
     shell: bash
 
   - uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+    id: cache-venv
     name: Cache definition for Poetry (Python ${{ inputs.python_version }}, ${{ env.shellos }})
     with:
       path: ./.venv
       key: venv-${{ hashFiles('poetry.lock') }}-py${{ inputs.python_version }}-${{ env.shellos }}
 
   - name: Install project
+    if: steps.cache-venv.outputs.cache-hit != 'true'
     run: poetry install --no-interaction
     shell: ${{ env.shellos }}
