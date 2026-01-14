@@ -43,7 +43,7 @@ branch = true
 
 [tool.poe.tasks]
 fmt = "black ."
-flake8 = "flake8 --show-source --statistics"
+flake8 = "flake8 --show-source --statistics --extend-exclude .venv,dist ."
 isort = "isort --line-length 120 --profile black ."
 lint = ["flake8", "isort"]
 mypy = "mypy ."
