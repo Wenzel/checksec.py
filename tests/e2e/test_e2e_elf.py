@@ -4,20 +4,37 @@ from pathlib import Path
 
 import pytest
 
-from checksec.elf import PIEType, RelroType
+from checksec.binary import NX
+from checksec.elf import FortifySource, PIEType, RelroType
 from tests.conftest import run_checksec
 
 ELF_BINARIES = Path(__file__).parent.parent / "binaries" / "elf"
 
 
 @pytest.mark.parametrize("is_enabled", [False, True])
-@pytest.mark.parametrize("prop", ["nx", "canary", "rpath", "runpath", "symbols", "fortify_source"])
+@pytest.mark.parametrize("prop", ["canary", "rpath", "runpath", "symbols"])
 def test_bool_prop(prop: str, is_enabled: bool):
     """Test that boolean prop is disabled/enabled"""
     libc_path = ELF_BINARIES / "libc-2.27.so"
     bin_path = ELF_BINARIES / f"{prop}_{'enabled' if is_enabled else 'disabled'}"
     chk_data = run_checksec(bin_path, libc_path)
     assert chk_data[str(bin_path)][prop] == is_enabled
+
+
+@pytest.mark.parametrize("nx", list(NX))
+def test_nx(nx: NX):
+    """Test that nx is No/Yes/NA"""
+    bin_path = ELF_BINARIES / f"nx_{nx.name.lower()}"
+    chk_data = run_checksec(bin_path)
+    assert chk_data[str(bin_path)]["nx"] == nx.name
+
+
+@pytest.mark.parametrize("fortify_source", list(FortifySource))
+def test_fortify_source(fortify_source: FortifySource):
+    """Test that fortify_source is No/Yes/NA"""
+    bin_path = ELF_BINARIES / f"fortify_source_{fortify_source.name.lower()}"
+    chk_data = run_checksec(bin_path)
+    assert chk_data[str(bin_path)]["fortify_source"] == fortify_source.name
 
 
 @pytest.mark.parametrize("relro_type", list(RelroType))

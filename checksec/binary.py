@@ -1,4 +1,5 @@
 from abc import ABC
+from enum import Enum
 from pathlib import Path
 from typing import TYPE_CHECKING, Union
 
@@ -11,6 +12,12 @@ if TYPE_CHECKING:
     from .pe import PEChecksecData
 
 
+class NX(Enum):
+    No = 1
+    Yes = 2
+    NA = 3
+
+
 class BinarySecurity(ABC):
     def __init__(self, bin_path: Path):
         self.bin = lief.parse(str(bin_path))
@@ -18,13 +25,14 @@ class BinarySecurity(ABC):
             raise ErrorParsingFailed(bin_path)
 
     @property
-    def has_nx(self) -> bool:
+    def has_nx(self) -> NX:
         # Handle ELF binary with no program segments (e.g., Kernel modules)
-        # In this case, return True
         if isinstance(self.bin, lief.ELF.Binary) and len(self.bin.segments) == 0:
-            return True
+            return NX.NA
+        elif self.bin.has_nx:
+            return NX.Yes
         else:
-            return self.bin.has_nx
+            return NX.No
 
     @property
     def checksec_state(self) -> Union["ELFChecksecData", "PEChecksecData"]:

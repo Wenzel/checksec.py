@@ -66,6 +66,12 @@ def is_elf(filepath: Path) -> bool:
     return lief.is_elf(str(filepath))
 
 
+class FortifySource(Enum):
+    No = 1
+    Yes = 2
+    NA = 3
+
+
 class RelroType(Enum):
     No = 1
     Partial = 2
@@ -215,7 +221,7 @@ class ELFSecurity(BinarySecurity):
 
     @property
     def checksec_state(self) -> ELFChecksecData:
-        fortify_source = None
+        fortify_source = FortifySource.NA
         fortified_count = None
         fortifiable_count = None
         score = None
@@ -232,7 +238,12 @@ class ELFSecurity(BinarySecurity):
                 else:
                     score = (fortified_count * 100) / fortifiable_count
                     score = round(score)
-            fortify_source = True if fortified_count != 0 or fortifiable_count == 0 else False
+            if fortified_count != 0:
+                fortify_source = FortifySource.Yes
+            elif fortifiable_count == 0:
+                fortify_source = FortifySource.NA
+            else:
+                fortify_source = FortifySource.No
         return ELFChecksecData(
             relro=self.relro,
             canary=self.has_canary,
