@@ -9,7 +9,8 @@ from rich.console import Console
 from rich.progress import BarColumn, Progress, TextColumn
 from rich.table import Table
 
-from checksec.elf import ELFChecksecData, PIEType, RelroType
+from checksec.binary import NX
+from checksec.elf import ELFChecksecData, FortifySource, PIEType, RelroType
 from checksec.pe import PEChecksecData
 
 MACHINE_TYPES = Header.MACHINE_TYPES
@@ -145,10 +146,11 @@ class RichOutput(AbstractChecksecOutput):
         if isinstance(checksec, ELFChecksecData):
             row_res: List[str] = []
             # display results
-            if not checksec.nx:
-                nx_res = "[red]No"
+            nx = checksec.nx
+            if nx == NX.No:
+                nx_res = f"[red]{nx.name}"
             else:
-                nx_res = "[green]Yes"
+                nx_res = f"[green]{nx.name}"
             row_res.append(nx_res)
 
             pie = checksec.pie
@@ -197,13 +199,14 @@ class RichOutput(AbstractChecksecOutput):
 
             # fortify results depend on having a Libc available
             if self._libc_detected:
-                fortified_count = checksec.fortified
-                if checksec.fortify_source:
-                    fortify_source_res = "[green]Yes"
+                fortify_source = checksec.fortify_source
+                if fortify_source == FortifySource.No:
+                    fortify_source_res = f"[red]{fortify_source.name}"
                 else:
-                    fortify_source_res = "[red]No"
+                    fortify_source_res = f"[green]{fortify_source.name}"
                 row_res.append(fortify_source_res)
 
+                fortified_count = checksec.fortified
                 if fortified_count == 0:
                     fortified_res = "[red]No"
                 else:
@@ -227,10 +230,11 @@ class RichOutput(AbstractChecksecOutput):
 
             self.table_elf.add_row(str(filepath), *row_res)
         elif isinstance(checksec, PEChecksecData):
-            if not checksec.nx:
-                nx_res = "[red]No"
+            nx = checksec.nx
+            if nx == NX.No:
+                nx_res = f"[red]{nx.name}"
             else:
-                nx_res = "[green]Yes"
+                nx_res = f"[green]{nx.name}"
 
             if not checksec.canary:
                 canary_res = "[red]No"
@@ -340,19 +344,19 @@ class JSONOutput(AbstractChecksecOutput):
             self.data[str(filepath.resolve())] = {
                 "relro": checksec.relro.name,
                 "canary": checksec.canary,
-                "nx": checksec.nx,
+                "nx": checksec.nx.name,
                 "pie": checksec.pie.name,
                 "rpath": checksec.rpath,
                 "runpath": checksec.runpath,
                 "symbols": checksec.symbols,
-                "fortify_source": checksec.fortify_source,
+                "fortify_source": checksec.fortify_source.name,
                 "fortified": checksec.fortified,
                 "fortify-able": checksec.fortifiable,
                 "fortify_score": checksec.fortify_score,
             }
         elif isinstance(checksec, PEChecksecData):
             self.data[str(filepath.resolve())] = {
-                "nx": checksec.nx,
+                "nx": checksec.nx.name,
                 "canary": checksec.canary,
                 "aslr": checksec.aslr,
                 "dynamic_base": checksec.dynamic_base,
